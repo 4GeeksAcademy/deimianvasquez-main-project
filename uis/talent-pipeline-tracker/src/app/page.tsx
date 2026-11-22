@@ -5,8 +5,8 @@
 
 "use client";
 
-import { Suspense, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { Suspense, useState, useCallback } from "react";
+import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { Header } from "@/components/layout/Header";
 import { CandidateSearch } from "@/components/candidates/CandidateSearch";
 import { CandidateFilters } from "@/components/candidates/CandidateFilters";
@@ -14,6 +14,7 @@ import { CandidateCard } from "@/components/candidates/CandidateCard";
 import { CandidateTable } from "@/components/candidates/CandidateTable";
 import { ViewToggle } from "@/components/candidates/ViewToggle";
 import type { ViewMode } from "@/components/candidates/ViewToggle";
+import { Pagination } from "@/components/ui/Pagination";
 import { useRecordList } from "@/hooks/useRecords";
 import {
   LoadingSkeleton,
@@ -24,6 +25,8 @@ import type { CandidateStatus, CandidateStage } from "@/types";
 
 function CandidateListContent() {
   const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
   const status = (searchParams.get("status") ?? undefined) as
     | CandidateStatus
     | undefined;
@@ -31,14 +34,38 @@ function CandidateListContent() {
     | CandidateStage
     | undefined;
   const search = searchParams.get("search") ?? undefined;
+  const currentPage = parseInt(searchParams.get("page") ?? "1", 10);
 
-  const { status: fetchStatus, data: candidates, error, refetch } = useRecordList({
+  const {
+    candidates,
+    total,
+    page,
+    totalPages,
+    status: fetchStatus,
+    error,
+    refetch,
+  } = useRecordList({
     status,
     stage,
     search,
+    page: currentPage,
+    limit: 12,
   });
 
   const [view, setView] = useState<ViewMode>("grid");
+
+  const handlePageChange = useCallback(
+    (newPage: number) => {
+      const params = new URLSearchParams(searchParams.toString());
+      if (newPage > 1) {
+        params.set("page", String(newPage));
+      } else {
+        params.delete("page");
+      }
+      router.push(`${pathname}?${params.toString()}`);
+    },
+    [searchParams, router, pathname]
+  );
 
   return (
     <div className="mx-auto flex w-full max-w-7xl flex-1 flex-col gap-6 px-4 py-8 sm:px-6 lg:px-8">
@@ -73,15 +100,31 @@ function CandidateListContent() {
       )}
 
       {fetchStatus === "success" && candidates.length > 0 && view === "grid" && (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {candidates.map((candidate) => (
-            <CandidateCard key={candidate.id} candidate={candidate} />
-          ))}
-        </div>
+        <>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {candidates.map((candidate) => (
+              <CandidateCard key={candidate.id} candidate={candidate} />
+            ))}
+          </div>
+          <Pagination
+            page={page}
+            totalPages={totalPages}
+            total={total}
+            onPageChange={handlePageChange}
+          />
+        </>
       )}
 
       {fetchStatus === "success" && candidates.length > 0 && view === "list" && (
-        <CandidateTable candidates={candidates} />
+        <>
+          <CandidateTable candidates={candidates} />
+          <Pagination
+            page={page}
+            totalPages={totalPages}
+            total={total}
+            onPageChange={handlePageChange}
+          />
+        </>
       )}
     </div>
   );

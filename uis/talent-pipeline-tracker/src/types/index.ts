@@ -225,6 +225,16 @@ export interface CandidateFilters {
   status?: CandidateStatus;
   stage?: CandidateStage;
   search?: string;
+  page?: number;
+  limit?: number;
+}
+
+/** Paginated result from the API */
+export interface PaginatedResult<T> {
+  data: T[];
+  total: number;
+  page: number;
+  limit: number;
 }
 
 /** Map candidate status to badge variant */

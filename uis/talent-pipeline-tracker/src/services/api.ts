@@ -10,6 +10,7 @@ import type {
   CreateNotePayload,
   Id,
   Note,
+  PaginatedResult,
   PatchCandidatePayload,
   UpdateCandidatePayload,
   ApiCandidate,
@@ -32,6 +33,8 @@ function buildRecordsUrl(filters?: CandidateFilters): string {
   if (filters?.status) url.searchParams.set("status", filters.status);
   if (filters?.stage) url.searchParams.set("stage", filters.stage);
   if (filters?.search) url.searchParams.set("search", filters.search);
+  if (filters?.page !== undefined) url.searchParams.set("page", String(filters.page));
+  if (filters?.limit !== undefined) url.searchParams.set("limit", String(filters.limit));
   return url.toString();
 }
 
@@ -66,11 +69,16 @@ async function apiRequest<T>(
 
 /* ───────────── Records / Candidates ──────────── */
 
-/** Fetch all candidates with optional filters */
-export async function getRecords(filters?: CandidateFilters): Promise<Candidate[]> {
+/** Fetch all candidates with optional filters and pagination */
+export async function getRecords(filters?: CandidateFilters): Promise<PaginatedResult<Candidate>> {
   const url = buildRecordsUrl(filters);
   const result = await apiRequest<ApiPaginatedResponse<ApiCandidate>>(url);
-  return result.data.map(mapCandidate);
+  return {
+    data: result.data.map(mapCandidate),
+    total: result.total,
+    page: result.page,
+    limit: result.limit,
+  };
 }
 
 /**
@@ -78,7 +86,7 @@ export async function getRecords(filters?: CandidateFilters): Promise<Candidate[
  * Uses the search endpoint and compares by exact email.
  */
 export async function checkEmailExists(email: string): Promise<boolean> {
-  const url = buildRecordsUrl({ search: email });
+  const url = buildRecordsUrl({ search: email, limit: 10 });
   const result = await apiRequest<ApiPaginatedResponse<ApiCandidate>>(url);
   return result.data.some((c) => c.email.toLowerCase() === email.toLowerCase());
 }

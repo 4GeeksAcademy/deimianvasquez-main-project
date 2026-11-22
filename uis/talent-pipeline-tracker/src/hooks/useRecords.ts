@@ -11,6 +11,7 @@ import type {
   CreateNotePayload,
   Id,
   Note,
+  PaginatedResult,
   PatchCandidatePayload,
   UpdateCandidatePayload,
 } from "@/types";
@@ -33,10 +34,18 @@ export type AsyncState<T> =
   | { status: "success"; data: T; error: null }
   | { status: "error"; data: null; error: string };
 
-/* ──── Hook: useRecordList (fetch candidates with filters) ──── */
+/* ──── Hook: useRecordList (fetch candidates with filters & pagination) ──── */
+
+export interface RecordListResult {
+  candidates: Candidate[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
 
 export function useRecordList(filters: CandidateFilters) {
-  const [state, setState] = useState<AsyncState<Candidate[]>>({
+  const [state, setState] = useState<AsyncState<RecordListResult>>({
     status: "idle",
     data: null,
     error: null,
@@ -50,8 +59,18 @@ export function useRecordList(filters: CandidateFilters) {
     setState({ status: "loading", data: null, error: null });
     try {
       const parsed = JSON.parse(filtersKey) as CandidateFilters;
-      const data = await getRecords(parsed);
-      setState({ status: "success", data, error: null });
+      const result = await getRecords(parsed);
+      setState({
+        status: "success",
+        data: {
+          candidates: result.data,
+          total: result.total,
+          page: result.page,
+          limit: result.limit,
+          totalPages: Math.ceil(result.total / result.limit) || 1,
+        },
+        error: null,
+      });
     } catch (err) {
       const message =
         err instanceof Error ? err.message : "Failed to fetch candidates";
@@ -63,7 +82,16 @@ export function useRecordList(filters: CandidateFilters) {
     fetchRecords();
   }, [fetchRecords]);
 
-  return { ...state, refetch: fetchRecords };
+  return {
+    candidates: state.data?.candidates ?? [],
+    total: state.data?.total ?? 0,
+    page: state.data?.page ?? 1,
+    limit: state.data?.limit ?? 20,
+    totalPages: state.data?.totalPages ?? 1,
+    status: state.status,
+    error: state.error,
+    refetch: fetchRecords,
+  };
 }
 
 /* ──── Hook: useRecord (fetch single candidate) ──── */
