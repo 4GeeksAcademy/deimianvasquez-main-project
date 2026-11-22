@@ -100,8 +100,8 @@ export interface CreateCandidatePayload {
   email: string;
   phone: string;
   position: string;
-  linkedInUrl?: string;
-  cvUrl?: string;
+  linkedInUrl: string;
+  cvUrl: string;
   yearsOfExperience: number;
 }
 

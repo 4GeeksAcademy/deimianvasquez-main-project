@@ -42,6 +42,12 @@ function validate(
   if (!payload.position.trim()) {
     errors.position = "Position is required";
   }
+  if (!payload.linkedInUrl.trim()) {
+    errors.linkedInUrl = "LinkedIn URL is required";
+  }
+  if (!payload.cvUrl.trim()) {
+    errors.cvUrl = "CV URL is required";
+  }
   if (
     payload.yearsOfExperience === undefined ||
     payload.yearsOfExperience === null ||
@@ -83,8 +89,8 @@ export default function CandidateForm({
       email: email.trim(),
       phone: phone.trim(),
       position: position.trim(),
-      linkedInUrl: linkedInUrl.trim() || undefined,
-      cvUrl: cvUrl.trim() || undefined,
+      linkedInUrl: linkedInUrl.trim(),
+      cvUrl: cvUrl.trim(),
       yearsOfExperience: parseInt(yearsOfExperience, 10) || 0,
     };
 
@@ -161,18 +167,22 @@ export default function CandidateForm({
           error={fieldErrors?.yearsOfExperience}
         />
         <Input
-          label="LinkedIn URL"
+          label="LinkedIn URL *"
           type="url"
           value={linkedInUrl}
           onChange={(e) => setLinkedInUrl(e.target.value)}
+          error={fieldErrors?.linkedInUrl}
           placeholder="e.g. https://linkedin.com/in/janesmith"
+          required
         />
         <Input
-          label="CV URL"
+          label="CV URL *"
           type="url"
           value={cvUrl}
           onChange={(e) => setCvUrl(e.target.value)}
+          error={fieldErrors?.cvUrl}
           placeholder="e.g. https://example.com/cv.pdf"
+          required
         />
       </div>
 
