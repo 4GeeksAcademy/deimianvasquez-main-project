@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HealthCore — Outpatient Healthcare Clinics</title>
+  <meta
+    name="description"
+    content="HealthCore is a network of 12 outpatient clinics across the US and UK offering same-day appointments, primary care, specialist consultations, and bilingual care."
+  />
+
+  <!-- Tailwind CSS v4 Play CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+
+  <!-- Google Fonts: Inter + DM Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=DM+Sans:wght@600;700&display=swap"
+    rel="stylesheet"
+  />
+
+  <style>
+    body { font-family: 'Inter', 'Helvetica', Arial, sans-serif; }
+    h1, h2, h3, h4 { font-family: 'DM Sans', 'Arial', sans-serif; }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { transition: none !important; animation: none !important; }
+    }
+
+    [data-i18n] { transition: opacity 0.15s; }
+    .lang-switching [data-i18n] { opacity: 0; }
+  </style>
+
+  <!-- Schema.org Organization -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "HealthCore",
+    "description": "Outpatient healthcare clinic network with 12 locations across the US and UK.",
+    "url": "https://healthcore.com",
+    "foundingDate": "2011",
+    "founder": { "@type": "Person", "name": "Dr. Sandra Okonkwo" },
+    "areaServed": ["United States", "United Kingdom"],
+    "contactPoint": {
+      "@type": "ContactPoint",
+      "telephone": "+1-512-555-1234",
+      "contactType": "customer service"
+    },
+    "sameAs": []
+  }
+  </script>
+</head>
+<body>
+
+  <!-- ========== SKIP LINK ========== -->
+  <a
+    href="#main"
+    class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:bg-[#087E78] focus:text-white focus:px-4 focus:py-2 focus:rounded"
+  >
+    <span data-i18n="skip-main">Skip to main content</span>
+  </a>
+
+  <!-- ========== HEADER ========== -->
+  <header class="bg-white border-b border-[#D7E2E1]" role="banner">
+    <nav class="max-w-[1200px] mx-auto px-5 lg:px-10 flex items-center justify-between h-16" aria-label="Main navigation">
+
+      <!-- Logo -->
+      <a href="/" class="text-[#123047] text-xl font-bold font-['DM_Sans']" aria-label="HealthCore home">
+        HealthCore
+      </a>
+
+      <!-- Language switcher + Desktop nav -->
+      <div class="flex items-center gap-6">
+        <!-- Language switcher -->
+        <div class="flex items-center border border-[#D7E2E1] rounded-lg overflow-hidden text-sm">
+          <button
+            id="lang-en"
+            class="px-3 py-1.5 font-medium transition-colors cursor-pointer"
+            onclick="setLang('en')"
+            data-lang-btn
+          >
+            EN
+          </button>
+          <button
+            id="lang-es"
+            class="px-3 py-1.5 font-medium transition-colors cursor-pointer"
+            onclick="setLang('es')"
+            data-lang-btn
+          >
+            ES
+          </button>
+        </div>
+
+        <!-- Desktop nav -->
+        <ul class="hidden md:flex items-center gap-8 text-[#18323D] font-medium">
+          <li><a href="#features" class="hover:text-[#087E78] transition-colors" data-i18n="nav-why">Why HealthCore</a></li>
+          <li><a href="#services" class="hover:text-[#087E78] transition-colors" data-i18n="nav-services">Services</a></li>
+          <li><a href="#contact" class="hover:text-[#087E78] transition-colors" data-i18n="nav-contact">Contact</a></li>
+          <li>
+            <a
+              href="application.html"
+              class="inline-flex items-center justify-center min-h-[44px] px-5 rounded-xl bg-[#087E78] text-white font-semibold hover:bg-[#06645F] transition-colors"
+              data-i18n="nav-appointment"
+            >
+              Request Appointment
+            </a>
+          </li>
+        </ul>
+
+        <!-- Mobile hamburger -->
+        <button
+          class="md:hidden min-h-[44px] min-w-[44px] flex items-center justify-center text-[#123047]"
+          aria-label="Toggle navigation menu"
+          aria-expanded="false"
+          onclick="
+            const menu = document.getElementById('mobile-menu');
+            const expanded = this.getAttribute('aria-expanded') === 'true' ? false : true;
+            this.setAttribute('aria-expanded', expanded);
+            menu.classList.toggle('hidden');
+          "
+        >
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/>
+          </svg>
+        </button>
+      </div>
+    </nav>
+
+    <!-- Mobile menu -->
+    <div id="mobile-menu" class="hidden md:hidden border-t border-[#D7E2E1] bg-white">
+      <ul class="flex flex-col px-5 py-4 gap-4 text-[#18323D] font-medium">
+        <li><a href="#features" class="block py-2" onclick="closeMobileMenu()" data-i18n="nav-why">Why HealthCore</a></li>
+        <li><a href="#services" class="block py-2" onclick="closeMobileMenu()" data-i18n="nav-services">Services</a></li>
+        <li><a href="#contact" class="block py-2" onclick="closeMobileMenu()" data-i18n="nav-contact">Contact</a></li>
+        <li>
+          <a
+            href="application.html"
+            class="inline-flex items-center justify-center min-h-[44px] px-5 rounded-xl bg-[#087E78] text-white font-semibold hover:bg-[#06645F] transition-colors"
+            onclick="closeMobileMenu()"
+            data-i18n="nav-appointment"
+          >
+            Request Appointment
+          </a>
+        </li>
+      </ul>
+    </div>
+  </header>
+
+  <script>
+    function closeMobileMenu() {
+      document.getElementById('mobile-menu')?.classList.add('hidden');
+      document.querySelector('[aria-label="Toggle navigation menu"]')?.setAttribute('aria-expanded', 'false');
+    }
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') closeMobileMenu();
+    });
+  </script>
+
+  <!-- ========== MAIN ========== -->
+  <main id="main">
+
+    <!-- ===== HERO ===== -->
+    <section class="bg-[#F5F8F7] pt-16 pb-20 md:pt-24 md:pb-28" aria-labelledby="hero-title">
+      <div class="max-w-[1200px] mx-auto px-5 lg:px-10">
+        <div class="max-w-3xl">
+          <h1
+            id="hero-title"
+            class="text-[clamp(2.375rem,5vw,3.75rem)] font-bold text-[#123047] leading-[1.1]"
+            data-i18n="hero-title"
+          >
+            Care that fits your life
+          </h1>
+          <p class="mt-6 text-lg md:text-xl text-[#526771] leading-relaxed max-w-2xl" data-i18n="hero-desc">
+            Same-day appointments, extended hours, and bilingual care across 12 clinics
+            in the US and UK. We make quality healthcare accessible when you need it.
+          </p>
+          <a
+            href="application.html"
+            class="mt-8 inline-flex items-center justify-center min-h-[44px] px-6 py-3 rounded-xl bg-[#087E78] text-white font-semibold text-lg hover:bg-[#06645F] transition-colors"
+            data-i18n="hero-cta"
+          >
+            Request an appointment
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== FEATURES / WHY HEALTHCORE ===== -->
+    <section id="features" class="py-16 md:py-24" aria-labelledby="features-title">
+      <div class="max-w-[1200px] mx-auto px-5 lg:px-10">
+        <h2
+          id="features-title"
+          class="text-[clamp(1.875rem,4vw,2.75rem)] font-bold text-[#123047] text-center leading-[1.15]"
+          data-i18n="features-title"
+        >
+          Why HealthCore
+        </h2>
+        <p class="mt-4 text-center text-[#526771] text-lg max-w-2xl mx-auto" data-i18n="features-sub">
+          We've built a network designed around patients, not paperwork.
+        </p>
+
+        <div class="mt-12 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+          <!-- Feature 1 -->
+          <article class="rounded-xl border border-[#D7E2E1] p-6 bg-white shadow-sm">
+            <div class="w-12 h-12 rounded-lg bg-[#DDF3EF] flex items-center justify-center mb-4">
+              <svg class="w-6 h-6 text-[#087E78]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+            </div>
+            <h3 class="text-xl font-bold text-[#123047]" data-i18n="feat1-title">Same-day bookings</h3>
+            <p class="mt-2 text-[#526771] leading-relaxed" data-i18n="feat1-desc">
+              No waiting weeks for care. Call or request online and we'll see you today.
+            </p>
+          </article>
+
+          <!-- Feature 2 -->
+          <article class="rounded-xl border border-[#D7E2E1] p-6 bg-white shadow-sm">
+            <div class="w-12 h-12 rounded-lg bg-[#DDF3EF] flex items-center justify-center mb-4">
+              <svg class="w-6 h-6 text-[#087E78]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3 21l12-12m0 0V3m0 6h6"/>
+              </svg>
+            </div>
+            <h3 class="text-xl font-bold text-[#123047]" data-i18n="feat2-title">Bilingual care</h3>
+            <p class="mt-2 text-[#526771] leading-relaxed" data-i18n="feat2-desc">
+              English and Spanish speaking staff at all our US locations.
+            </p>
+          </article>
+
+          <!-- Feature 3 -->
+          <article class="rounded-xl border border-[#D7E2E1] p-6 bg-white shadow-sm">
+            <div class="w-12 h-12 rounded-lg bg-[#DDF3EF] flex items-center justify-center mb-4">
+              <svg class="w-6 h-6 text-[#087E78]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h1M4 12H3m15.36 6.36l.7.7M5.64 5.64l-.7-.7M18.36 5.64l.7-.7M5.64 18.36l-.7.7M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>
+              </svg>
+            </div>
+            <h3 class="text-xl font-bold text-[#123047]" data-i18n="feat3-title">Extended hours</h3>
+            <p class="mt-2 text-[#526771] leading-relaxed" data-i18n="feat3-desc">
+              Early mornings, evenings, and weekends to fit your schedule.
+            </p>
+          </article>
+
+          <!-- Feature 4 -->
+          <article class="rounded-xl border border-[#D7E2E1] p-6 bg-white shadow-sm">
+            <div class="w-12 h-12 rounded-lg bg-[#DDF3EF] flex items-center justify-center mb-4">
+              <svg class="w-6 h-6 text-[#087E78]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
+              </svg>
+            </div>
+            <h3 class="text-xl font-bold text-[#123047]" data-i18n="feat4-title">Trusted network</h3>
+            <p class="mt-2 text-[#526771] leading-relaxed" data-i18n="feat4-desc">
+              12 clinics, 200+ staff, and over a decade of serving our communities.
+            </p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== SERVICES ===== -->
+    <section id="services" class="py-16 md:py-24 bg-[#F5F8F7]" aria-labelledby="services-title">
+      <div class="max-w-[1200px] mx-auto px-5 lg:px-10">
+        <h2
+          id="services-title"
+          class="text-[clamp(1.875rem,4vw,2.75rem)] font-bold text-[#123047] text-center leading-[1.15]"
+          data-i18n="services-title"
+        >
+          Our services
+        </h2>
+        <p class="mt-4 text-center text-[#526771] text-lg max-w-2xl mx-auto" data-i18n="services-sub">
+          Comprehensive outpatient care for the whole family.
+        </p>
+
+        <div class="mt-12 grid gap-6 md:grid-cols-3">
+          <article class="rounded-xl border border-[#D7E2E1] p-6 bg-white shadow-sm">
+            <h3 class="text-xl font-bold text-[#123047]" data-i18n="serv1-title">Primary Care</h3>
+            <p class="mt-2 text-[#526771] leading-relaxed" data-i18n="serv1-desc">
+              Routine check-ups, vaccinations, and ongoing care for every stage of life.
+            </p>
+            <ul class="mt-4 space-y-2 text-sm text-[#526771]">
+              <li class="flex items-start gap-2">
+                <span class="text-[#087E78] mt-0.5">&#10003;</span>
+                <span data-i18n="serv1-item1">Annual physicals</span>
+              </li>
+              <li class="flex items-start gap-2">
+                <span class="text-[#087E78] mt-0.5">&#10003;</span>
+                <span data-i18n="serv1-item2">Immunizations</span>
+              </li>
+              <li class="flex items-start gap-2">
+                <span class="text-[#087E78] mt-0.5">&#10003;</span>
+                <span data-i18n="serv1-item3">Acute illness treatment</span>
+              </li>
+            </ul>
+          </article>
+
+          <article class="rounded-xl border border-[#D7E2E1] p-6 bg-white shadow-sm">
+            <h3 class="text-xl font-bold text-[#123047]" data-i18n="serv2-title">Specialist Consultations</h3>
+            <p class="mt-2 text-[#526771] leading-relaxed" data-i18n="serv2-desc">
+              Access to specialists in cardiology, dermatology, endocrinology and more.
+            </p>
+            <ul class="mt-4 space-y-2 text-sm text-[#526771]">
+              <li class="flex items-start gap-2">
+                <span class="text-[#087E78] mt-0.5">&#10003;</span>
+                <span data-i18n="serv2-item1">Referral coordination</span>
+              </li>
+              <li class="flex items-start gap-2">
+                <span class="text-[#087E78] mt-0.5">&#10003;</span>
+                <span data-i18n="serv2-item2">Same-week appointments</span>
+              </li>
+            </ul>
+          </article>
+
+          <article class="rounded-xl border border-[#D7E2E1] p-6 bg-white shadow-sm">
+            <h3 class="text-xl font-bold text-[#123047]" data-i18n="serv3-title">Chronic Disease Management</h3>
+            <p class="mt-2 text-[#526771] leading-relaxed" data-i18n="serv3-desc">
+              Personalized plans for diabetes, hypertension, asthma and other conditions.
+            </p>
+            <ul class="mt-4 space-y-2 text-sm text-[#526771]">
+              <li class="flex items-start gap-2">
+                <span class="text-[#087E78] mt-0.5">&#10003;</span>
+                <span data-i18n="serv3-item1">Ongoing monitoring</span>
+              </li>
+              <li class="flex items-start gap-2">
+                <span class="text-[#087E78] mt-0.5">&#10003;</span>
+                <span data-i18n="serv3-item2">Medication management</span>
+              </li>
+              <li class="flex items-start gap-2">
+                <span class="text-[#087E78] mt-0.5">&#10003;</span>
+                <span data-i18n="serv3-item3">Lifestyle guidance</span>
+              </li>
+            </ul>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== CTA BANNER ===== -->
+    <section class="py-16 md:py-20 bg-[#123047]" aria-labelledby="cta-title">
+      <div class="max-w-[1200px] mx-auto px-5 lg:px-10 text-center">
+        <h2 id="cta-title" class="text-[clamp(1.875rem,4vw,2.5rem)] font-bold text-white leading-[1.15]" data-i18n="cta-title">
+          Ready to get started?
+        </h2>
+        <p class="mt-4 text-lg text-[#D7E2E1] max-w-xl mx-auto" data-i18n="cta-desc">
+          Submit a consultation request and our reception team will contact you to confirm the details.
+        </p>
+        <a
+          href="application.html"
+          class="mt-8 inline-flex items-center justify-center min-h-[44px] px-6 py-3 rounded-xl bg-[#087E78] text-white font-semibold text-lg hover:bg-[#06645F] transition-colors"
+          data-i18n="cta-btn"
+        >
+          Request an appointment
+        </a>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ========== CONTACT ========== -->
+  <section id="contact" class="py-16 md:py-20 bg-[#F5F8F7]" aria-labelledby="contact-title">
+    <div class="max-w-[1200px] mx-auto px-5 lg:px-10">
+      <h2
+        id="contact-title"
+        class="text-[clamp(1.875rem,4vw,2.75rem)] font-bold text-[#123047] text-center leading-[1.15]"
+        data-i18n="contact-title"
+      >
+        Contact us
+      </h2>
+
+      <div class="mt-10 grid gap-8 md:grid-cols-3 max-w-3xl mx-auto text-center">
+        <div>
+          <h3 class="font-semibold text-[#123047]" data-i18n="contact-email-label">Email</h3>
+          <a href="mailto:contact@healthcore.com" class="text-[#174A5B] underline hover:text-[#087E78] mt-1 block">
+            contact@healthcore.com
+          </a>
+        </div>
+        <div>
+          <h3 class="font-semibold text-[#123047]" data-i18n="contact-phone-label">Phone</h3>
+          <a href="tel:+15125551234" class="text-[#174A5B] underline hover:text-[#087E78] mt-1 block">
+            (512) 555-1234
+          </a>
+        </div>
+        <div>
+          <h3 class="font-semibold text-[#123047]" data-i18n="contact-hq-label">Headquarters</h3>
+          <p class="text-[#526771] mt-1">Austin, Texas</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== FOOTER ========== -->
+  <footer class="bg-[#123047] text-white py-10" role="contentinfo">
+    <div class="max-w-[1200px] mx-auto px-5 lg:px-10 flex flex-col md:flex-row items-center justify-between gap-4">
+      <p class="text-sm text-[#D7E2E1]">&copy; 2024 HealthCore.</p>
+      <nav aria-label="Footer navigation">
+        <ul class="flex gap-6 text-sm">
+          <li><a href="#features" class="text-[#D7E2E1] hover:text-white transition-colors" data-i18n="nav-why">Why HealthCore</a></li>
+          <li><a href="#services" class="text-[#D7E2E1] hover:text-white transition-colors" data-i18n="nav-services">Services</a></li>
+          <li><a href="#contact" class="text-[#D7E2E1] hover:text-white transition-colors" data-i18n="nav-contact">Contact</a></li>
+          <li><a href="application.html" class="text-[#D7E2E1] hover:text-white transition-colors" data-i18n="nav-appointment">Request Appointment</a></li>
+        </ul>
+      </nav>
+    </div>
+  </footer>
+
+  <!-- ========== TRANSLATIONS ========== -->
+  <script>
+    var LANG = {
+      en: {
+        'skip-main': 'Skip to main content',
+        'nav-why': 'Why HealthCore',
+        'nav-services': 'Services',
+        'nav-contact': 'Contact',
+        'nav-appointment': 'Request Appointment',
+        'hero-title': 'Care that fits your life',
+        'hero-desc': 'Same-day appointments, extended hours, and bilingual care across 12 clinics in the US and UK. We make quality healthcare accessible when you need it.',
+        'hero-cta': 'Request an appointment',
+        'features-title': 'Why HealthCore',
+        'features-sub': "We've built a network designed around patients, not paperwork.",
+        'feat1-title': 'Same-day bookings',
+        'feat1-desc': 'No waiting weeks for care. Call or request online and we\'ll see you today.',
+        'feat2-title': 'Bilingual care',
+        'feat2-desc': 'English and Spanish speaking staff at all our US locations.',
+        'feat3-title': 'Extended hours',
+        'feat3-desc': 'Early mornings, evenings, and weekends to fit your schedule.',
+        'feat4-title': 'Trusted network',
+        'feat4-desc': '12 clinics, 200+ staff, and over a decade of serving our communities.',
+        'services-title': 'Our services',
+        'services-sub': 'Comprehensive outpatient care for the whole family.',
+        'serv1-title': 'Primary Care',
+        'serv1-desc': 'Routine check-ups, vaccinations, and ongoing care for every stage of life.',
+        'serv1-item1': 'Annual physicals',
+        'serv1-item2': 'Immunizations',
+        'serv1-item3': 'Acute illness treatment',
+        'serv2-title': 'Specialist Consultations',
+        'serv2-desc': 'Access to specialists in cardiology, dermatology, endocrinology and more.',
+        'serv2-item1': 'Referral coordination',
+        'serv2-item2': 'Same-week appointments',
+        'serv3-title': 'Chronic Disease Management',
+        'serv3-desc': 'Personalized plans for diabetes, hypertension, asthma and other conditions.',
+        'serv3-item1': 'Ongoing monitoring',
+        'serv3-item2': 'Medication management',
+        'serv3-item3': 'Lifestyle guidance',
+        'cta-title': 'Ready to get started?',
+        'cta-desc': 'Submit a consultation request and our reception team will contact you to confirm the details.',
+        'cta-btn': 'Request an appointment',
+        'contact-title': 'Contact us',
+        'contact-email-label': 'Email',
+        'contact-phone-label': 'Phone',
+        'contact-hq-label': 'Headquarters'
+      },
+      es: {
+        'skip-main': 'Saltar al contenido principal',
+        'nav-why': 'Por qu\u00e9 HealthCore',
+        'nav-services': 'Servicios',
+        'nav-contact': 'Contacto',
+        'nav-appointment': 'Solicitar Cita',
+        'hero-title': 'Atenci\u00f3n que se adapta a tu vida',
+        'hero-desc': 'Citas el mismo d\u00eda, horarios extendidos y atenci\u00f3n biling\u00fce en 12 cl\u00ednicas en EE. UU. y Reino Unido. Hacemos que la atenci\u00f3n m\u00e9dica de calidad sea accesible cuando la necesitas.',
+        'hero-cta': 'Solicitar una cita',
+        'features-title': 'Por qu\u00e9 HealthCore',
+        'features-sub': 'Hemos construido una red dise\u00f1ada para los pacientes, no para el papeleo.',
+        'feat1-title': 'Citas el mismo d\u00eda',
+        'feat1-desc': 'Sin esperar semanas. Llama o solicita en l\u00ednea y te atenderemos hoy.',
+        'feat2-title': 'Atenci\u00f3n biling\u00fce',
+        'feat2-desc': 'Personal que habla ingl\u00e9s y espa\u00f1ol en todas nuestras ubicaciones en EE. UU.',
+        'feat3-title': 'Horarios extendidos',
+        'feat3-desc': 'Ma\u00f1anas temprano, tardes y fines de semana para ajustarse a tu horario.',
+        'feat4-title': 'Red de confianza',
+        'feat4-desc': '12 cl\u00ednicas, m\u00e1s de 200 empleados y m\u00e1s de una d\u00e9cada sirviendo a nuestras comunidades.',
+        'services-title': 'Nuestros servicios',
+        'services-sub': 'Atenci\u00f3n ambulatoria integral para toda la familia.',
+        'serv1-title': 'Atenci\u00f3n Primaria',
+        'serv1-desc': 'Chequeos de rutina, vacunas y atenci\u00f3n continua para cada etapa de la vida.',
+        'serv1-item1': 'Ex\u00e1menes f\u00edsicos anuales',
+        'serv1-item2': 'Vacunas',
+        'serv1-item3': 'Tratamiento de enfermedades agudas',
+        'serv2-title': 'Consultas con Especialistas',
+        'serv2-desc': 'Acceso a especialistas en cardiolog\u00eda, dermatolog\u00eda, endocrinolog\u00eda y m\u00e1s.',
+        'serv2-item1': 'Coordinaci\u00f3n de referencias',
+        'serv2-item2': 'Citas en la misma semana',
+        'serv3-title': 'Manejo de Enfermedades Cr\u00f3nicas',
+        'serv3-desc': 'Planes personalizados para diabetes, hipertensi\u00f3n, asma y otras condiciones.',
+        'serv3-item1': 'Monitoreo continuo',
+        'serv3-item2': 'Manejo de medicamentos',
+        'serv3-item3': 'Orientaci\u00f3n de estilo de vida',
+        'cta-title': '\u00bfListo para comenzar?',
+        'cta-desc': 'Env\u00eda una solicitud de consulta y nuestro equipo de recepci\u00f3n te contactar\u00e1 para confirmar los detalles.',
+        'cta-btn': 'Solicitar una cita',
+        'contact-title': 'Cont\u00e1ctanos',
+        'contact-email-label': 'Correo electr\u00f3nico',
+        'contact-phone-label': 'Tel\u00e9fono',
+        'contact-hq-label': 'Oficina central'
+      }
+    };
+
+    var currentLang = localStorage.getItem('healthcore-lang') || 'en';
+
+    function setLang(lang) {
+      currentLang = lang;
+      localStorage.setItem('healthcore-lang', lang);
+      document.documentElement.lang = lang === 'es' ? 'es' : 'en';
+      document.querySelector('body').classList.add('lang-switching');
+      var els = document.querySelectorAll('[data-i18n]');
+      for (var i = 0; i < els.length; i++) {
+        var key = els[i].getAttribute('data-i18n');
+        if (LANG[lang] && LANG[lang][key]) {
+          els[i].textContent = LANG[lang][key];
+        }
+      }
+      // Update lang buttons active style
+      var btns = document.querySelectorAll('[data-lang-btn]');
+      for (var j = 0; j < btns.length; j++) {
+        btns[j].classList.remove('bg-[#123047]', 'text-white');
+        btns[j].classList.add('text-[#18323D]');
+      }
+      var active = document.getElementById('lang-' + lang);
+      if (active) {
+        active.classList.add('bg-[#123047]', 'text-white');
+        active.classList.remove('text-[#18323D]');
+      }
+      setTimeout(function () {
+        document.querySelector('body').classList.remove('lang-switching');
+      }, 150);
+    }
+
+    // Init language on load
+    setLang(currentLang);
+  </script>
+
+</body>
+</html>

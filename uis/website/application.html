@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Request an appointment — HealthCore</title>
+  <meta
+    name="description"
+    content="Submit a consultation request and our reception team will contact you to confirm the details."
+  />
+
+  <!-- Tailwind CSS v4 Play CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=DM+Sans:wght@600;700&display=swap"
+    rel="stylesheet"
+  />
+
+  <style>
+    body { font-family: 'Inter', 'Helvetica', Arial, sans-serif; }
+    h1, h2, h3, h4 { font-family: 'DM Sans', 'Arial', sans-serif; }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { transition: none !important; animation: none !important; }
+    }
+
+    [data-i18n] { transition: opacity 0.15s; }
+    .lang-switching [data-i18n] { opacity: 0; }
+  </style>
+</head>
+<body>
+
+  <!-- ========== SKIP LINK ========== -->
+  <a
+    href="#form-content"
+    class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:bg-[#087E78] focus:text-white focus:px-4 focus:py-2 focus:rounded"
+  >
+    <span data-i18n="skip-form">Skip to form</span>
+  </a>
+
+  <!-- ========== HEADER ========== -->
+  <header class="bg-white border-b border-[#D7E2E1]" role="banner">
+    <nav class="max-w-[1200px] mx-auto px-5 lg:px-10 flex items-center justify-between h-16" aria-label="Main navigation">
+
+      <!-- Logo -->
+      <a href="/" class="text-[#123047] text-xl font-bold font-['DM_Sans']" aria-label="HealthCore home">
+        HealthCore
+      </a>
+
+      <!-- Language switcher + Desktop nav -->
+      <div class="flex items-center gap-6">
+        <!-- Language switcher -->
+        <div class="flex items-center border border-[#D7E2E1] rounded-lg overflow-hidden text-sm">
+          <button
+            id="lang-en"
+            class="px-3 py-1.5 font-medium transition-colors cursor-pointer"
+            onclick="setLang('en')"
+            data-lang-btn
+          >
+            EN
+          </button>
+          <button
+            id="lang-es"
+            class="px-3 py-1.5 font-medium transition-colors cursor-pointer"
+            onclick="setLang('es')"
+            data-lang-btn
+          >
+            ES
+          </button>
+        </div>
+
+        <!-- Desktop nav -->
+        <ul class="hidden md:flex items-center gap-8 text-[#18323D] font-medium">
+          <li><a href="/#features" class="hover:text-[#087E78] transition-colors" data-i18n="nav-why">Why HealthCore</a></li>
+          <li><a href="/#services" class="hover:text-[#087E78] transition-colors" data-i18n="nav-services">Services</a></li>
+          <li><a href="/#contact" class="hover:text-[#087E78] transition-colors" data-i18n="nav-contact">Contact</a></li>
+          <li>
+            <span
+              class="inline-flex items-center justify-center min-h-[44px] px-5 rounded-xl bg-[#087E78]/10 text-[#087E78] font-semibold cursor-default"
+              data-i18n="nav-appointment"
+            >
+              Request Appointment
+            </span>
+          </li>
+        </ul>
+
+        <!-- Mobile hamburger -->
+        <button
+          class="md:hidden min-h-[44px] min-w-[44px] flex items-center justify-center text-[#123047]"
+          aria-label="Toggle navigation menu"
+          aria-expanded="false"
+          onclick="
+            const menu = document.getElementById('mobile-menu');
+            const expanded = this.getAttribute('aria-expanded') === 'true' ? false : true;
+            this.setAttribute('aria-expanded', expanded);
+            menu.classList.toggle('hidden');
+          "
+        >
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/>
+          </svg>
+        </button>
+      </div>
+    </nav>
+
+    <!-- Mobile menu -->
+    <div id="mobile-menu" class="hidden md:hidden border-t border-[#D7E2E1] bg-white">
+      <ul class="flex flex-col px-5 py-4 gap-4 text-[#18323D] font-medium">
+        <li><a href="/#features" class="block py-2" onclick="closeMobileMenu()" data-i18n="nav-why">Why HealthCore</a></li>
+        <li><a href="/#services" class="block py-2" onclick="closeMobileMenu()" data-i18n="nav-services">Services</a></li>
+        <li><a href="/#contact" class="block py-2" onclick="closeMobileMenu()" data-i18n="nav-contact">Contact</a></li>
+        <li>
+          <span class="block py-2 text-[#087E78] font-semibold cursor-default" data-i18n="nav-appointment">
+            Request Appointment
+          </span>
+        </li>
+      </ul>
+    </div>
+  </header>
+
+  <script>
+    function closeMobileMenu() {
+      document.getElementById('mobile-menu')?.classList.add('hidden');
+      document.querySelector('[aria-label="Toggle navigation menu"]')?.setAttribute('aria-expanded', 'false');
+    }
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') closeMobileMenu();
+    });
+  </script>
+
+  <!-- ========== FORM ========== -->
+  <main id="form-content">
+
+    <section class="py-12 md:py-16" aria-labelledby="form-title">
+      <div class="max-w-[720px] mx-auto px-5 lg:px-10">
+
+        <h1
+          id="form-title"
+          class="text-[clamp(1.875rem,4vw,2.75rem)] font-bold text-[#123047] leading-[1.15]"
+          data-i18n="form-title"
+        >
+          Request an appointment
+        </h1>
+
+        <p class="mt-4 text-[#526771] leading-relaxed" data-i18n="form-sub">
+          Fill out the form below and our reception team will contact you to confirm the details.
+          This is a consultation request, not a confirmed booking.
+        </p>
+
+        <form
+          id="appointment-form"
+          action="#"
+          method="post"
+          novalidate
+          class="mt-10 space-y-8"
+        >
+
+          <!-- SECTION: Personal Information -->
+          <fieldset class="border border-[#D7E2E1] rounded-xl p-6 bg-white">
+            <legend class="font-bold text-lg text-[#123047] px-2" data-i18n="section-personal">Personal Information</legend>
+
+            <div class="grid gap-4 md:grid-cols-2 mt-4">
+              <div>
+                <label for="first-name" class="block text-sm font-medium text-[#18323D] mb-1" data-i18n="label-firstname">First name *</label>
+                <input
+                  type="text"
+                  id="first-name"
+                  name="first-name"
+                  required
+                  aria-required="true"
+                  class="w-full min-h-[44px] px-3 py-2 rounded-lg border border-[#D7E2E1] text-[#18323D] text-base focus:border-[#087E78] focus:ring-2 focus:ring-[#087E78]/35 focus:outline-none transition-colors"
+                />
+                <p class="mt-1 text-sm text-[#B42332] hidden" id="first-name-error" role="alert"></p>
+              </div>
+
+              <div>
+                <label for="last-name" class="block text-sm font-medium text-[#18323D] mb-1" data-i18n="label-lastname">Last name *</label>
+                <input
+                  type="text"
+                  id="last-name"
+                  name="last-name"
+                  required
+                  aria-required="true"
+                  class="w-full min-h-[44px] px-3 py-2 rounded-lg border border-[#D7E2E1] text-[#18323D] text-base focus:border-[#087E78] focus:ring-2 focus:ring-[#087E78]/35 focus:outline-none transition-colors"
+                />
+                <p class="mt-1 text-sm text-[#B42332] hidden" id="last-name-error" role="alert"></p>
+              </div>
+
+              <div>
+                <label for="email" class="block text-sm font-medium text-[#18323D] mb-1" data-i18n="label-email">Email address *</label>
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  required
+                  aria-required="true"
+                  class="w-full min-h-[44px] px-3 py-2 rounded-lg border border-[#D7E2E1] text-[#18323D] text-base focus:border-[#087E78] focus:ring-2 focus:ring-[#087E78]/35 focus:outline-none transition-colors"
+                />
+                <p class="mt-1 text-sm text-[#B42332] hidden" id="email-error" role="alert"></p>
+              </div>
+
+              <div>
+                <label for="phone" class="block text-sm font-medium text-[#18323D] mb-1" data-i18n="label-phone">Phone number *</label>
+                <input
+                  type="tel"
+                  id="phone"
+                  name="phone"
+                  required
+                  aria-required="true"
+                  class="w-full min-h-[44px] px-3 py-2 rounded-lg border border-[#D7E2E1] text-[#18323D] text-base focus:border-[#087E78] focus:ring-2 focus:ring-[#087E78]/35 focus:outline-none transition-colors"
+                />
+                <p class="mt-1 text-sm text-[#B42332] hidden" id="phone-error" role="alert"></p>
+              </div>
+            </div>
+          </fieldset>
+
+          <!-- SECTION: Care Preference -->
+          <fieldset class="border border-[#D7E2E1] rounded-xl p-6 bg-white">
+            <legend class="font-bold text-lg text-[#123047] px-2" data-i18n="section-care">Care Preference</legend>
+
+            <div class="grid gap-4 md:grid-cols-2 mt-4">
+              <div>
+                <label for="clinic" class="block text-sm font-medium text-[#18323D] mb-1" data-i18n="label-clinic">Preferred clinic *</label>
+                <select
+                  id="clinic"
+                  name="clinic"
+                  required
+                  aria-required="true"
+                  class="w-full min-h-[44px] px-3 py-2 rounded-lg border border-[#D7E2E1] text-[#18323D] text-base focus:border-[#087E78] focus:ring-2 focus:ring-[#087E78]/35 focus:outline-none transition-colors"
+                >
+                  <option value="" data-i18n="select-clinic">Select a clinic&hellip;</option>
+                  <option value="austin-central">Austin Central &mdash; Austin, TX</option>
+                  <option value="dallas-north">Dallas North &mdash; Dallas, TX</option>
+                  <option value="houston-sw">Houston Southwest &mdash; Houston, TX</option>
+                  <option value="orlando-east">Orlando East &mdash; Orlando, FL</option>
+                  <option value="atlanta-midtown">Atlanta Midtown &mdash; Atlanta, GA</option>
+                  <option value="miami-brickell">Miami Brickell &mdash; Miami, FL</option>
+                </select>
+                <p class="mt-1 text-sm text-[#B42332] hidden" id="clinic-error" role="alert"></p>
+              </div>
+
+              <div>
+                <label for="service" class="block text-sm font-medium text-[#18323D] mb-1" data-i18n="label-service">Service needed *</label>
+                <select
+                  id="service"
+                  name="service"
+                  required
+                  aria-required="true"
+                  class="w-full min-h-[44px] px-3 py-2 rounded-lg border border-[#D7E2E1] text-[#18323D] text-base focus:border-[#087E78] focus:ring-2 focus:ring-[#087E78]/35 focus:outline-none transition-colors"
+                >
+                  <option value="" data-i18n="select-service">Select a service&hellip;</option>
+                  <option value="primary-care" data-i18n="serv1-title">Primary Care</option>
+                  <option value="specialist" data-i18n="serv2-title">Specialist Consultation</option>
+                  <option value="chronic-management" data-i18n="serv3-title">Chronic Disease Management</option>
+                  <option value="preventive" data-i18n="serv-option-preventive">Preventive Health Program</option>
+                  <option value="other" data-i18n="serv-option-other">Other</option>
+                </select>
+                <p class="mt-1 text-sm text-[#B42332] hidden" id="service-error" role="alert"></p>
+              </div>
+            </div>
+          </fieldset>
+
+          <!-- SECTION: Insurance -->
+          <fieldset class="border border-[#D7E2E1] rounded-xl p-6 bg-white">
+            <legend class="font-bold text-lg text-[#123047] px-2" data-i18n="section-insurance">Insurance Information</legend>
+
+            <div class="grid gap-4 md:grid-cols-2 mt-4">
+              <div>
+                <label for="insurance-provider" class="block text-sm font-medium text-[#18323D] mb-1" data-i18n="label-provider">Insurance provider</label>
+                <input
+                  type="text"
+                  id="insurance-provider"
+                  name="insurance-provider"
+                  class="w-full min-h-[44px] px-3 py-2 rounded-lg border border-[#D7E2E1] text-[#18323D] text-base focus:border-[#087E78] focus:ring-2 focus:ring-[#087E78]/35 focus:outline-none transition-colors"
+                />
+              </div>
+
+              <div>
+                <label for="patient-id" class="block text-sm font-medium text-[#18323D] mb-1" data-i18n="label-patientid">Patient ID (if known)</label>
+                <input
+                  type="text"
+                  id="patient-id"
+                  name="patient-id"
+                  class="w-full min-h-[44px] px-3 py-2 rounded-lg border border-[#D7E2E1] text-[#18323D] text-base focus:border-[#087E78] focus:ring-2 focus:ring-[#087E78]/35 focus:outline-none transition-colors"
+                />
+              </div>
+            </div>
+          </fieldset>
+
+          <!-- SECTION: Consultation Details -->
+          <fieldset class="border border-[#D7E2E1] rounded-xl p-6 bg-white">
+            <legend class="font-bold text-lg text-[#123047] px-2" data-i18n="section-consult">Consultation Details</legend>
+
+            <div class="mt-4">
+              <label for="notes" class="block text-sm font-medium text-[#18323D] mb-1" data-i18n="label-notes">
+                Brief description of your visit
+              </label>
+              <textarea
+                id="notes"
+                name="notes"
+                rows="4"
+                class="w-full px-3 py-2 rounded-lg border border-[#D7E2E1] text-[#18323D] text-base focus:border-[#087E78] focus:ring-2 focus:ring-[#087E78]/35 focus:outline-none transition-colors"
+              ></textarea>
+            </div>
+
+            <div class="mt-4">
+              <label class="flex items-start gap-3 text-sm text-[#18323D]">
+                <input
+                  type="checkbox"
+                  id="consent"
+                  name="consent"
+                  required
+                  aria-required="true"
+                  class="mt-0.5 min-h-[44px] min-w-[44px] rounded border-[#D7E2E1] text-[#087E78] focus:ring-[#087E78]/35"
+                />
+                <span data-i18n="label-consent">
+                  I understand that this is a consultation request and my appointment will be confirmed by the reception team. *
+                </span>
+              </label>
+              <p class="mt-1 text-sm text-[#B42332] hidden" id="consent-error" role="alert"></p>
+            </div>
+          </fieldset>
+
+          <!-- Partnership note -->
+          <p class="text-sm text-[#526771]">
+            <strong data-i18n="partnership-label">For business partnerships:</strong>
+            <span data-i18n="partnership-msg">Please contact us at</span>
+            <a href="mailto:partnerships@healthcore.com" class="text-[#174A5B] underline hover:text-[#087E78]">partnerships@healthcore.com</a>.
+          </p>
+
+          <!-- Buttons -->
+          <div class="flex flex-col sm:flex-row gap-4">
+            <button
+              type="submit"
+              class="min-h-[44px] px-6 py-3 rounded-xl bg-[#087E78] text-white font-semibold text-lg hover:bg-[#06645F] transition-colors cursor-pointer"
+              data-i18n="btn-submit"
+            >
+              Submit request
+            </button>
+            <button
+              type="reset"
+              id="reset-btn"
+              class="min-h-[44px] px-6 py-3 rounded-xl border border-[#087E78] text-[#087E78] font-semibold text-lg hover:bg-[#DDF3EF] transition-colors cursor-pointer"
+              data-i18n="btn-clear"
+            >
+              Clear form
+            </button>
+          </div>
+
+        </form>
+
+        <!-- ========== SUCCESS MESSAGE (hidden by default) ========== -->
+        <div
+          id="success-message"
+          class="hidden mt-10 p-6 rounded-xl border border-[#246B45] bg-[#DDF3EF]"
+          role="status"
+          tabindex="-1"
+        >
+          <h2 class="text-2xl font-bold text-[#246B45]" data-i18n="success-title">Thank you for your request</h2>
+          <p class="mt-2 text-[#18323D]" data-i18n="success-desc">
+            Our reception team has received your consultation request and will contact you to
+            confirm the details. If you need urgent care, please call your nearest clinic directly.
+          </p>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ========== FOOTER ========== -->
+  <footer class="bg-[#123047] text-white py-10 mt-10" role="contentinfo">
+    <div class="max-w-[1200px] mx-auto px-5 lg:px-10 flex flex-col md:flex-row items-center justify-between gap-4">
+      <p class="text-sm text-[#D7E2E1]">&copy; 2024 HealthCore.</p>
+      <nav aria-label="Footer navigation">
+        <ul class="flex gap-6 text-sm">
+          <li><a href="/#features" class="text-[#D7E2E1] hover:text-white transition-colors" data-i18n="nav-why">Why HealthCore</a></li>
+          <li><a href="/#services" class="text-[#D7E2E1] hover:text-white transition-colors" data-i18n="nav-services">Services</a></li>
+          <li><a href="/#contact" class="text-[#D7E2E1] hover:text-white transition-colors" data-i18n="nav-contact">Contact</a></li>
+        </ul>
+      </nav>
+    </div>
+  </footer>
+
+  <!-- ========== TRANSLATIONS ========== -->
+  <script>
+    var LANG = {
+      en: {
+        'skip-form': 'Skip to form',
+        'nav-why': 'Why HealthCore',
+        'nav-services': 'Services',
+        'nav-contact': 'Contact',
+        'nav-appointment': 'Request Appointment',
+        'form-title': 'Request an appointment',
+        'form-sub': 'Fill out the form below and our reception team will contact you to confirm the details. This is a consultation request, not a confirmed booking.',
+        'section-personal': 'Personal Information',
+        'label-firstname': 'First name *',
+        'label-lastname': 'Last name *',
+        'label-email': 'Email address *',
+        'label-phone': 'Phone number *',
+        'section-care': 'Care Preference',
+        'label-clinic': 'Preferred clinic *',
+        'select-clinic': 'Select a clinic\u2026',
+        'label-service': 'Service needed *',
+        'select-service': 'Select a service\u2026',
+        'serv1-title': 'Primary Care',
+        'serv2-title': 'Specialist Consultation',
+        'serv3-title': 'Chronic Disease Management',
+        'serv-option-preventive': 'Preventive Health Program',
+        'serv-option-other': 'Other',
+        'section-insurance': 'Insurance Information',
+        'label-provider': 'Insurance provider',
+        'label-patientid': 'Patient ID (if known)',
+        'section-consult': 'Consultation Details',
+        'label-notes': 'Brief description of your visit',
+        'label-consent': 'I understand that this is a consultation request and my appointment will be confirmed by the reception team. *',
+        'partnership-label': 'For business partnerships:',
+        'partnership-msg': 'Please contact us at',
+        'btn-submit': 'Submit request',
+        'btn-clear': 'Clear form',
+        'success-title': 'Thank you for your request',
+        'success-desc': 'Our reception team has received your consultation request and will contact you to confirm the details. If you need urgent care, please call your nearest clinic directly.'
+      },
+      es: {
+        'skip-form': 'Saltar al formulario',
+        'nav-why': 'Por qu\u00e9 HealthCore',
+        'nav-services': 'Servicios',
+        'nav-contact': 'Contacto',
+        'nav-appointment': 'Solicitar Cita',
+        'form-title': 'Solicitar una cita',
+        'form-sub': 'Completa el formulario y nuestro equipo de recepci\u00f3n te contactar\u00e1 para confirmar los detalles. Esta es una solicitud de consulta, no una reserva confirmada.',
+        'section-personal': 'Informaci\u00f3n Personal',
+        'label-firstname': 'Nombre *',
+        'label-lastname': 'Apellido *',
+        'label-email': 'Correo electr\u00f3nico *',
+        'label-phone': 'N\u00famero de tel\u00e9fono *',
+        'section-care': 'Preferencia de Atenci\u00f3n',
+        'label-clinic': 'Cl\u00ednica preferida *',
+        'select-clinic': 'Selecciona una cl\u00ednica\u2026',
+        'label-service': 'Servicio necesario *',
+        'select-service': 'Selecciona un servicio\u2026',
+        'serv1-title': 'Atenci\u00f3n Primaria',
+        'serv2-title': 'Consulta con Especialista',
+        'serv3-title': 'Manejo de Enfermedades Cr\u00f3nicas',
+        'serv-option-preventive': 'Programa de Salud Preventiva',
+        'serv-option-other': 'Otro',
+        'section-insurance': 'Informaci\u00f3n de Seguro',
+        'label-provider': 'Proveedor de seguro',
+        'label-patientid': 'ID de paciente (si se conoce)',
+        'section-consult': 'Detalles de la Consulta',
+        'label-notes': 'Breve descripci\u00f3n de tu visita',
+        'label-consent': 'Entiendo que esto es una solicitud de consulta y mi cita ser\u00e1 confirmada por el equipo de recepci\u00f3n. *',
+        'partnership-label': 'Para alianzas comerciales:',
+        'partnership-msg': 'Por favor cont\u00e1ctanos en',
+        'btn-submit': 'Enviar solicitud',
+        'btn-clear': 'Limpiar formulario',
+        'success-title': 'Gracias por tu solicitud',
+        'success-desc': 'Nuestro equipo de recepci\u00f3n ha recibido tu solicitud de consulta y te contactar\u00e1 para confirmar los detalles. Si necesitas atenci\u00f3n urgente, llama directamente a tu cl\u00ednica m\u00e1s cercana.'
+      }
+    };
+
+    var currentLang = localStorage.getItem('healthcore-lang') || 'en';
+
+    function setLang(lang) {
+      currentLang = lang;
+      localStorage.setItem('healthcore-lang', lang);
+      document.documentElement.lang = lang === 'es' ? 'es' : 'en';
+      document.querySelector('body').classList.add('lang-switching');
+      var els = document.querySelectorAll('[data-i18n]');
+      for (var i = 0; i < els.length; i++) {
+        var key = els[i].getAttribute('data-i18n');
+        if (LANG[lang] && LANG[lang][key]) {
+          els[i].innerHTML = LANG[lang][key];
+        }
+      }
+      // Update lang buttons active style
+      var btns = document.querySelectorAll('[data-lang-btn]');
+      for (var j = 0; j < btns.length; j++) {
+        btns[j].classList.remove('bg-[#123047]', 'text-white');
+        btns[j].classList.add('text-[#18323D]');
+      }
+      var active = document.getElementById('lang-' + lang);
+      if (active) {
+        active.classList.add('bg-[#123047]', 'text-white');
+        active.classList.remove('text-[#18323D]');
+      }
+      setTimeout(function () {
+        document.querySelector('body').classList.remove('lang-switching');
+      }, 150);
+    }
+
+    // Init language on load
+    setLang(currentLang);
+  </script>
+
+  <!-- Validation JS -->
+  <script src="validation.js"></script>
+
+</body>
+</html>
