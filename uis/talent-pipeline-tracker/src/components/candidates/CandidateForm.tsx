@@ -5,10 +5,11 @@
 
 "use client";
 
-import { type FormEvent, useState } from "react";
+import { type FormEvent, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
+import { checkEmailExists } from "@/services/api";
 import type { Candidate, CreateCandidatePayload } from "@/types";
 
 export type CandidateFormErrors = Partial<
@@ -78,7 +79,48 @@ export default function CandidateForm({
   const [fieldErrors, setFieldErrors] = useState<CandidateFormErrors | null>(
     null
   );
+  const [emailExistsError, setEmailExistsError] = useState<string | null>(null);
+  const [checkingEmail, setCheckingEmail] = useState(false);
+  const emailCheckRef = useRef(0);
   const router = useRouter();
+
+  /** Async email duplicate check — only in create mode */
+  const handleEmailBlur = async () => {
+    if (mode !== "create") return;
+
+    const trimmed = email.trim();
+    if (!trimmed || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed)) {
+      setEmailExistsError(null);
+      return;
+    }
+
+    // Skip check if email hasn't changed from initial data
+    if (initialData?.email?.toLowerCase() === trimmed.toLowerCase()) {
+      setEmailExistsError(null);
+      return;
+    }
+
+    setCheckingEmail(true);
+    setEmailExistsError(null);
+
+    const thisCheck = ++emailCheckRef.current;
+
+    try {
+      const exists = await checkEmailExists(trimmed);
+      // Only update state if this check is still the latest
+      if (thisCheck === emailCheckRef.current && exists) {
+        setEmailExistsError("This email is already registered");
+      } else if (thisCheck === emailCheckRef.current) {
+        setEmailExistsError(null);
+      }
+    } catch {
+      // Silently ignore network errors on blur — server error will catch on submit
+    } finally {
+      if (thisCheck === emailCheckRef.current) {
+        setCheckingEmail(false);
+      }
+    }
+  };
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -98,6 +140,19 @@ export default function CandidateForm({
     if (validationErrors) {
       setFieldErrors(validationErrors);
       return;
+    }
+
+    // Final duplicate check before submitting
+    if (mode === "create" && !initialData) {
+      try {
+        const exists = await checkEmailExists(payload.email);
+        if (exists) {
+          setEmailExistsError("This email is already registered");
+          return;
+        }
+      } catch {
+        // Let the API handle it if the check fails
+      }
     }
 
     await onSubmit(payload);
@@ -136,8 +191,13 @@ export default function CandidateForm({
           label="Email *"
           type="email"
           value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          error={fieldErrors?.email}
+          onChange={(e) => {
+            setEmail(e.target.value);
+            // Clear duplicate error when user starts typing
+            if (emailExistsError) setEmailExistsError(null);
+          }}
+          onBlur={handleEmailBlur}
+          error={fieldErrors?.email || emailExistsError || undefined}
           placeholder="e.g. jane.smith@healthcore.com"
           required
         />
@@ -195,7 +255,7 @@ export default function CandidateForm({
         >
           Cancel
         </Button>
-        <Button type="submit" variant="primary" loading={loading}>
+        <Button type="submit" variant="primary" loading={loading || checkingEmail}>
           {mode === "create" ? "Add Candidate" : "Save Changes"}
         </Button>
       </div>

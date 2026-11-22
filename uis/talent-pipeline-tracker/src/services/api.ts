@@ -73,6 +73,16 @@ export async function getRecords(filters?: CandidateFilters): Promise<Candidate[
   return result.data.map(mapCandidate);
 }
 
+/**
+ * Check if a candidate with the given email already exists.
+ * Uses the search endpoint and compares by exact email.
+ */
+export async function checkEmailExists(email: string): Promise<boolean> {
+  const url = buildRecordsUrl({ search: email });
+  const result = await apiRequest<ApiPaginatedResponse<ApiCandidate>>(url);
+  return result.data.some((c) => c.email.toLowerCase() === email.toLowerCase());
+}
+
 /** Fetch a single candidate by ID */
 export async function getRecord(id: Id): Promise<Candidate> {
   const result = await apiRequest<ApiCandidate>(
