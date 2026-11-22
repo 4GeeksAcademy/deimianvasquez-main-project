@@ -5,12 +5,15 @@
 
 "use client";
 
-import { Suspense } from "react";
+import { Suspense, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { Header } from "@/components/layout/Header";
 import { CandidateSearch } from "@/components/candidates/CandidateSearch";
 import { CandidateFilters } from "@/components/candidates/CandidateFilters";
 import { CandidateCard } from "@/components/candidates/CandidateCard";
+import { CandidateTable } from "@/components/candidates/CandidateTable";
+import { ViewToggle } from "@/components/candidates/ViewToggle";
+import type { ViewMode } from "@/components/candidates/ViewToggle";
 import { useRecordList } from "@/hooks/useRecords";
 import {
   LoadingSkeleton,
@@ -35,6 +38,8 @@ function CandidateListContent() {
     search,
   });
 
+  const [view, setView] = useState<ViewMode>("grid");
+
   return (
     <div className="mx-auto flex w-full max-w-7xl flex-1 flex-col gap-6 px-4 py-8 sm:px-6 lg:px-8">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -46,7 +51,10 @@ function CandidateListContent() {
             Manage and track hiring pipeline candidates
           </p>
         </div>
-        <CandidateSearch />
+        <div className="flex items-center gap-3">
+          <ViewToggle view={view} onChange={setView} />
+          <CandidateSearch />
+        </div>
       </div>
 
       <CandidateFilters />
@@ -64,12 +72,16 @@ function CandidateListContent() {
         />
       )}
 
-      {fetchStatus === "success" && candidates.length > 0 && (
+      {fetchStatus === "success" && candidates.length > 0 && view === "grid" && (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {candidates.map((candidate) => (
             <CandidateCard key={candidate.id} candidate={candidate} />
           ))}
         </div>
+      )}
+
+      {fetchStatus === "success" && candidates.length > 0 && view === "list" && (
+        <CandidateTable candidates={candidates} />
       )}
     </div>
   );
