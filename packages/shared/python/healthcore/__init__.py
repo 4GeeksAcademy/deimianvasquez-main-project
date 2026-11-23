@@ -1,0 +1,1 @@
+"""HealthCore — shared analysis logic for scripts and API."""

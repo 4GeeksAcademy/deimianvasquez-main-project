@@ -1,0 +1,5 @@
+Metadata-Version: 2.4
+Name: healthcore-shared
+Version: 0.1.0
+Summary: Shared analysis logic for HealthCore
+Requires-Python: >=3.13

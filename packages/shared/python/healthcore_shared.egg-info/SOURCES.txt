@@ -1,0 +1,7 @@
+pyproject.toml
+healthcore/__init__.py
+healthcore/analyzer.py
+healthcore_shared.egg-info/PKG-INFO
+healthcore_shared.egg-info/SOURCES.txt
+healthcore_shared.egg-info/dependency_links.txt
+healthcore_shared.egg-info/top_level.txt
