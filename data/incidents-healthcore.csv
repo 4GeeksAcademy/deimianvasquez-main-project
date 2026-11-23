@@ -1,0 +1,36 @@
+clinic_id,country,category,description,patient_id,status,satisfaction_score
+US-TX-01,US,APPOINTMENT,Patient missed scheduled appointment,PAT-000001,CLOSED,3
+US-TX-01,US,BILLING,Incorrect billing code applied to claim,PAT-000002,CLOSED,2
+US-TX-02,US,CLINICAL_CARE,Delayed lab results caused treatment delay,PAT-000003,OPEN,
+US-TX-02,US,APPOINTMENT,No show for annual checkup,PAT-000004,CLOSED,4
+US-TX-03,US,ACCESSIBILITY,Wheelchair ramp blocked at entrance,PAT-000005,CLOSED,1
+US-TX-03,US,ADMINISTRATIVE,Insurance verification not completed on time,PAT-000006,OPEN,
+US-FL-01,US,APPOINTMENT,Double booking caused 45min wait,PAT-000007,CLOSED,3
+US-FL-01,US,BILLING,Patient overcharged for copay,PAT-000008,CLOSED,2
+US-FL-02,US,CLINICAL_CARE,Medication administration error reported,PAT-000009,DISCARDED,
+US-FL-02,US,APPOINTMENT,Patient arrived but doctor unavailable,PAT-000010,CLOSED,4
+US-FL-03,US,ACCESSIBILITY,No interpreter available for Spanish patient,PAT-000011,CLOSED,1
+US-FL-03,US,ADMINISTRATIVE,Discharge paperwork contained errors,PAT-000012,CLOSED,5
+US-GA-01,US,APPOINTMENT, Appointment scheduling system offline,PAT-000013,OPEN,
+US-GA-01,US,BILLING,Claim denied due to missing pre-auth,PAT-000014,CLOSED,2
+US-GA-02,US,CLINICAL_CARE,Patient allergic reaction not documented,PAT-000015,CLOSED,3
+US-GA-02,US,APPOINTMENT,Three patients scheduled at same time slot,PAT-000016,OPEN,
+US-GA-03,US,ACCESSIBILITY,Parking lot lacks accessible spaces,PAT-000017,DISCARDED,
+US-GA-03,US,ADMINISTRATIVE,Referral not processed within 48hrs,PAT-000018,CLOSED,4
+UK-LON-01,UK,APPOINTMENT,Patient seen 30 minutes late,PAT-000019,CLOSED,2
+UK-LON-01,UK,BILLING,NHS claim incorrectly coded,PAT-000020,CLOSED,3
+UK-LON-02,UK,CLINICAL_CARE,Blood test results lost in transit,PAT-000021,OPEN,
+UK-LON-02,UK,APPOINTMENT,Missed appointment no reminder sent,PAT-000022,CLOSED,5
+UK-MAN-01,UK,ACCESSIBILITY,Navigation signage confusing for patients,PAT-000023,CLOSED,4
+UK-MAN-01,UK,ADMINISTRATIVE,Patient record not updated after visit,PAT-000024,OPEN,
+,US,APPOINTMENT,Invalid clinic id empty,PAT-000025,CLOSED,3
+US-TX-01,UK,APPOINTMENT,Country clinic mismatch US-TX-01 vs UK,PAT-000026,CLOSED,2
+US-FL-01,US,TRAINING,Invalid category TRAINING,PAT-000027,OPEN,
+US-TX-02,US,APPOINTMENT,A,PAT-000028,CLOSED,3
+UK,UK,APPOINTMENT,Invalid clinic id UK not detailed,,CLOSED,4
+UK-LON-01,UK,APPOINTMENT,Valid record with incomplete id missing clini,PAT-000030,CLOSED,1
+US-TX-03,US,APPOINTMENT,Missing patient id,PAT-,CLOSED,4
+US-FL-02,US,BILLING,Invalid status OPENN,PAT-000033,OPENN,3
+UK-MAN-01,UK,APPOINTMENT,Closed case without score,PAT-000034,CLOSED,
+US-GA-01,US,BILLING,Satisfaction score out of range,PAT-000035,CLOSED,6
+UK-LON-02,UK,CLINICAL_CARE,Negative satisfaction not allowed,PAT-000036,CLOSED,-1

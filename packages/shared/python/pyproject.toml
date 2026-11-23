@@ -1,0 +1,5 @@
+[project]
+name = "healthcore-shared"
+version = "0.1.0"
+description = "Shared analysis logic for HealthCore"
+requires-python = ">=3.13"

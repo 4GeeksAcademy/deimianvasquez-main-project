@@ -1,0 +1,26 @@
+[project]
+name = "healthcore-api"
+version = "0.1.0"
+description = "HealthCore — Patient Incident Report API"
+readme = "README.md"
+authors = [
+    { name = "Deimian Vásquez", email = "deimianvasquez@gmail.com" }
+]
+requires-python = ">=3.13"
+dependencies = [
+    "fastapi[standard]>=0.165.0",
+    "healthcore-shared",
+]
+
+[tool.uv]
+package = false
+
+[tool.uv.sources]
+healthcore-shared = { path = "../../packages/shared/python", editable = true }
+
+[project.scripts]
+healthcore-api = "app.api:main"
+
+[build-system]
+requires = ["uv_build>=0.12.22,<0.13.0"]
+build-backend = "uv_build"
