@@ -2,15 +2,15 @@
 Router de la API para el Directorio de Proveedores de HealthCore.
 
 Define los 6 endpoints del CRUD de proveedores.
+Todos los endpoints requieren un token JWT válido.
 """
-
-from fastapi import APIRouter, HTTPException
 
 from typing import Optional
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 
+from app.auth.deps import get_current_user
 from app.suppliers.models import (
     SupplierCreate,
     SupplierRateUpdate,
@@ -26,6 +26,7 @@ from app.suppliers.repository import (
     update_status,
     delete_supplier,
 )
+from app.users.schemas import UserCreate
 
 router = APIRouter(prefix="/suppliers", tags=["Suppliers"])
 
@@ -41,7 +42,10 @@ class PaginatedSuppliers(BaseModel):
 # ── Endpoints ──────────────────────────────────────────────────────
 
 @router.post("", response_model=SupplierResponse, status_code=201)
-def create_supplier(payload: SupplierCreate):
+def create_supplier(
+    payload: SupplierCreate,
+    current_user: UserCreate = Depends(get_current_user),
+):
     """
     Registra un proveedor nuevo.
 
@@ -59,6 +63,7 @@ def list_suppliers(
     category: Optional[str] = None,
     skip: int = 0,
     limit: int = 20,
+    current_user: UserCreate = Depends(get_current_user),
 ):
     """
     Lista proveedores con paginación y filtros opcionales.
@@ -75,7 +80,10 @@ def list_suppliers(
 
 
 @router.get("/{supplier_id}", response_model=SupplierResponse)
-def get_supplier(supplier_id: int):
+def get_supplier(
+    supplier_id: int,
+    current_user: UserCreate = Depends(get_current_user),
+):
     """
     Devuelve el detalle de un proveedor por su ID.
 
@@ -88,7 +96,11 @@ def get_supplier(supplier_id: int):
 
 
 @router.patch("/{supplier_id}/rate", response_model=SupplierResponse)
-def update_supplier_rate(supplier_id: int, payload: SupplierRateUpdate):
+def update_supplier_rate(
+    supplier_id: int,
+    payload: SupplierRateUpdate,
+    current_user: UserCreate = Depends(get_current_user),
+):
     """
     Actualiza la tarifa mensual de un proveedor.
 
@@ -102,7 +114,11 @@ def update_supplier_rate(supplier_id: int, payload: SupplierRateUpdate):
 
 
 @router.patch("/{supplier_id}/status", response_model=SupplierResponse)
-def update_supplier_status(supplier_id: int, payload: SupplierStatusUpdate):
+def update_supplier_status(
+    supplier_id: int,
+    payload: SupplierStatusUpdate,
+    current_user: UserCreate = Depends(get_current_user),
+):
     """
     Activa o suspende un proveedor.
 
@@ -122,7 +138,10 @@ def update_supplier_status(supplier_id: int, payload: SupplierStatusUpdate):
 
 
 @router.delete("/{supplier_id}", status_code=204)
-def remove_supplier(supplier_id: int):
+def remove_supplier(
+    supplier_id: int,
+    current_user: UserCreate = Depends(get_current_user),
+):
     """
     Elimina un proveedor del directorio.
 

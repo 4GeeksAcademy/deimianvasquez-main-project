@@ -4,22 +4,28 @@ HealthCore — Incidents Router
 FastAPI endpoints for CSV analysis upload and export.
 
 Thin controller: delegates business logic to the service layer.
+All endpoints are protected — a valid JWT is required.
 """
 
-from fastapi import APIRouter, File, HTTPException, UploadFile
+from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
 from fastapi.responses import StreamingResponse
 
+from app.auth.deps import get_current_user
 from app.incidents.schemas import AnalysisResponse
 from app.incidents.service import (
     export_last_result_as_csv,
     process_csv_analysis,
 )
+from app.users.schemas import UserCreate
 
 router = APIRouter(prefix="/api/incidents", tags=["incidents"])
 
 
 @router.post("/analyze", response_model=AnalysisResponse)
-async def analyze_incidents(file: UploadFile = File(...)):
+async def analyze_incidents(
+    file: UploadFile = File(...),
+    current_user: UserCreate = Depends(get_current_user),
+):
     """
     Upload a CSV file of incident reports and get a validated analysis summary in JSON.
 
@@ -69,7 +75,9 @@ async def analyze_incidents(file: UploadFile = File(...)):
 
 
 @router.get("/results/export")
-async def export_results():
+async def export_results(
+    current_user: UserCreate = Depends(get_current_user),
+):
     """
     Download the last analysis results as a CSV file.
 

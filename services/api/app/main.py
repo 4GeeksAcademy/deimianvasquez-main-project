@@ -1,8 +1,11 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from app.auth.router import router as auth_router
 from app.incidents.router import router as incidents_router
+from app.profiles.router import router as profiles_router
 from app.suppliers.router import router as suppliers_router
+from app.users.router import router as users_router
 
 app = FastAPI(
     title="HealthCore — Incident Report Analysis API",
@@ -23,6 +26,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+app.include_router(auth_router, prefix="/auth")
+app.include_router(users_router, prefix="/users")
+app.include_router(profiles_router, prefix="/profiles")
 app.include_router(incidents_router)
 app.include_router(suppliers_router)
 

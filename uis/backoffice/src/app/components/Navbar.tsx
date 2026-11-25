@@ -1,12 +1,54 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import {
+  isAuthenticated,
+  getCachedUser,
+  fetchMe,
+  logout,
+  clearToken,
+  setCachedUser,
+} from "@/services/api";
 
 export default function Navbar() {
   const pathname = usePathname();
 
   const isActive = (path: string) => pathname === path;
+
+  // Fetch current user on mount if we have a token but no cached user
+  const [user, setUser] = useState<ReturnType<typeof getCachedUser> | "loading" | null>(null);
+
+  useEffect(() => {
+    if (isAuthenticated()) {
+      /* Sync cookie for the server-side proxy — if localStorage has a
+         token but the cookie is missing (e.g. from before this feature
+         was added), set it now so the proxy won't redirect. */
+      try {
+        document.cookie = "healthcore_token=1; path=/; max-age=86400; SameSite=Lax";
+      } catch { /* ignore */ }
+
+      const cached = getCachedUser();
+      if (cached) {
+        setUser(cached);
+      } else {
+        setUser("loading");
+        fetchMe()
+          .then((u) => {
+            setUser(u);
+            setCachedUser(u);
+          })
+          .catch(() => {
+            // Token invalid — clear it
+            clearToken();
+            setUser(null);
+          });
+      }
+    } else {
+      setUser(null);
+    }
+  }, []);
 
   return (
     <nav className="bg-surface border-b border-border shadow-sm">
@@ -22,7 +64,7 @@ export default function Navbar() {
             </span>
           </Link>
 
-          {/* Navigation Links */}
+          {/* Navigation Links & User Menu */}
           <div className="flex items-center gap-1">
             <NavLink href="/" active={isActive("/")}>
               <svg
@@ -40,38 +82,82 @@ export default function Navbar() {
               </svg>
               Home
             </NavLink>
-            <NavLink href="/incidents" active={isActive("/incidents")}>
-              <svg
-                className="w-4 h-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                />
-              </svg>
-              Incidentes
-            </NavLink>
-            <NavLink href="/suppliers" active={isActive("/suppliers")}>
-              <svg
-                className="w-4 h-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
-                />
-              </svg>
-              Proveedores
-            </NavLink>
+            {/* Protected links — only visible when authenticated */}
+            {user && user !== "loading" && (
+              <>
+                <NavLink href="/incidents" active={isActive("/incidents")}>
+                  <svg
+                    className="w-4 h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                    />
+                  </svg>
+                  Incidentes
+                </NavLink>
+                <NavLink href="/suppliers" active={isActive("/suppliers")}>
+                  <svg
+                    className="w-4 h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
+                    />
+                  </svg>
+                  Proveedores
+                </NavLink>
+              </>
+            )}
+
+            {/* User section */}
+            <div className="ml-2 flex items-center gap-1">
+              {user === "loading" ? (
+                <span className="text-xs text-text-secondary px-2">Cargando...</span>
+              ) : user ? (
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-text-secondary px-2 truncate max-w-35">
+                    {user.profile?.name || user.email}
+                  </span>
+                  {user.role === "admin" && (
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-primary-100 text-primary-700 text-xs font-medium">
+                      Admin
+                    </span>
+                  )}
+                  <button
+                    onClick={logout}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-error hover:bg-error/10 transition-colors"
+                  >
+                    Salir
+                  </button>
+                </div>
+              ) : (
+                <>
+                  <Link
+                    href="/login"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-primary-700 hover:bg-primary-100 transition-colors"
+                  >
+                    Iniciar sesión
+                  </Link>
+                  <Link
+                    href="/register"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-primary-700 text-white hover:bg-primary-800 transition-colors"
+                  >
+                    Registrarse
+                  </Link>
+                </>
+              )}
+            </div>
           </div>
         </div>
       </div>

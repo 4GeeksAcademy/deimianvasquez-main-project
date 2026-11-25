@@ -4,8 +4,8 @@ import { useEffect, useState } from "react";
 import SupplierTable from "./SupplierTable";
 import SupplierForm from "./SupplierForm";
 import type { Supplier } from "./types";
-
-const API_BASE = "http://localhost:8000";
+import { fetchWithAuth, API_BASE } from "@/services/api";
+import { requireAuth } from "@/services/auth-guard";
 
 const CATEGORIES = [
   { value: "", label: "Todas las categorías" },
@@ -22,6 +22,7 @@ const CATEGORIES = [
 ];
 
 export default function SuppliersPage() {
+  requireAuth();
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -46,7 +47,7 @@ export default function SuppliersPage() {
       params.set("limit", String(limit));
 
       const url = `${API_BASE}/suppliers${params.toString() ? `?${params}` : ""}`;
-      const res = await fetch(url);
+      const res = await fetchWithAuth(url);
       if (!res.ok) throw new Error(`Error ${res.status}`);
       const data = await res.json();
       setSuppliers(data.items);
@@ -129,7 +130,7 @@ export default function SuppliersPage() {
               setCategoryFilter(e.target.value);
               setSkip(0);
             }}
-            className="rounded-lg border border-border bg-surface px-3 py-2 text-sm text-text-primary focus:outline-none focus:ring-2 focus:ring-primary-700/20 min-w-[180px]"
+            className="rounded-lg border border-border bg-surface px-3 py-2 text-sm text-text-primary focus:outline-none focus:ring-2 focus:ring-primary-700/20 min-w-45"
           >
             {CATEGORIES.map((cat) => (
               <option key={cat.value} value={cat.value}>
