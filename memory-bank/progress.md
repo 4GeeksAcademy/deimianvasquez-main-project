@@ -48,6 +48,37 @@
 - ✅ `company-choice.md` con milestone elegido: onboarding clínico automatizado.
 - ❌ `CONTEXT.md` aún contiene la plantilla original (placeholder), no ha sido reemplazado.
 
+### Feature: Recuperación y cambio de contraseña (AUTH-03)
+
+#### Backend (`services/api/app/auth/`)
+
+- ✅ `email_service.py` — Cliente Resend singleton con `send_reset_email()` y plantillas HTML/plaintext.
+- ✅ `repository.py` — Tabla `reset_tokens` en TinyDB con hash SHA-256 de tokens.
+- ✅ `service.py` — `request_password_reset()`, `complete_password_reset()`, `change_user_password()` con JWT de propósito único.
+- ✅ `schemas.py` — `ForgotPasswordRequest`, `ResetPasswordRequest`, `ChangePasswordRequest`.
+- ✅ `router.py` — Endpoints `POST /auth/forgot-password`, `/auth/reset-password`, `/auth/change-password`.
+- ✅ `config.py` — Variables `RESEND_API_KEY`, `PASSWORD_RESET_TOKEN_SECRET_KEY`, `FRONTEND_URL`.
+- ✅ Dependencia `resend` instalada.
+
+#### Frontend Backoffice (`uis/backoffice/`)
+
+- ✅ `services/api.ts` — Funciones `forgotPassword()`, `resetPassword()`, `changePassword()`.
+- ✅ `app/forgot-password/page.tsx` — Formulario de email con prevención de enumeración.
+- ✅ `app/reset-password/page.tsx` — Formulario con validación de token y nueva contraseña.
+- ✅ `app/account/change-password/page.tsx` — Cambio de contraseña desde cuenta autenticada.
+- ✅ `app/login/page.tsx` — Enlace "¿Olvidaste tu contraseña?".
+- ✅ `messages/en.json` — Traducciones completas (forgot_password, reset_password, change_password).
+- ✅ `messages/es.json` — Traducciones completas en español.
+- ✅ TypeScript compila sin errores (`npx tsc --noEmit`).
+
+#### Pendiente (usuario)
+
+- ❌ Crear cuenta en resend.com y obtener API Key.
+- ❌ Agregar `RESEND_API_KEY=re_xxx` al archivo `services/api/.env`.
+- ❌ Iniciar servidor FastAPI con `uv run fastapi dev`.
+- ❌ Verificar entrega de correos electrónicos de recuperación.
+- ❌ Reemplazar `CONTEXT.md` con contenido real del proyecto.
+
 ---
 
 ## Próximos pasos

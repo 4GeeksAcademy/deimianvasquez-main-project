@@ -25,7 +25,8 @@
     "email_required": "Email is required",
     "password_required": "Password is required",
     "error_prefix": "Login failed",
-    "invalid_credentials": "Invalid credentials"
+    "invalid_credentials": "Invalid credentials",
+    "forgot_password": "Forgot your password?"
   },
   "register": {
     "title": "Create Account",
@@ -182,5 +183,55 @@
     "loading": "Loading profile...",
     "error_title": "Error",
     "error_no_user": "Could not load user information."
+  },
+  "forgot_password": {
+    "title": "Forgot Password",
+    "subtitle": "Enter your email and we'll send you a reset link",
+    "email_label": "Email",
+    "email_placeholder": "e.g. user@healthcore.com",
+    "submit": "Send Reset Link",
+    "submitting": "Sending...",
+    "email_required": "Email is required",
+    "check_email": "Check your email",
+    "confirmation": "If an account exists with that email, you will receive a password reset link shortly.",
+    "back_to_login": "Back to Sign In"
+  },
+  "reset_password": {
+    "title": "Set New Password",
+    "subtitle": "Enter your new password below",
+    "new_password_label": "New Password",
+    "new_password_placeholder": "Minimum 6 characters",
+    "confirm_password_label": "Confirm Password",
+    "confirm_password_placeholder": "Repeat password",
+    "submit": "Reset Password",
+    "submitting": "Resetting...",
+    "password_min": "Password must be at least 6 characters",
+    "password_mismatch": "Passwords do not match",
+    "missing_token": "Reset token is missing",
+    "success_title": "Password Reset!",
+    "success_message": "Your password has been updated successfully.",
+    "redirecting": "Redirecting to sign in...",
+    "invalid_link": "Invalid or expired reset link",
+    "request_new": "Request a new link",
+    "back_to_login": "Back to Sign In",
+    "loading": "Validating your link...",
+    "error_prefix": "Could not reset password"
+  },
+  "change_password": {
+    "title": "Change Password",
+    "subtitle": "Update your account password",
+    "current_password_label": "Current Password",
+    "current_password_placeholder": "Enter your current password",
+    "new_password_label": "New Password",
+    "new_password_placeholder": "Minimum 6 characters",
+    "confirm_password_label": "Confirm New Password",
+    "confirm_password_placeholder": "Repeat new password",
+    "submit": "Change Password",
+    "submitting": "Updating...",
+    "current_required": "Current password is required",
+    "password_min": "New password must be at least 6 characters",
+    "password_mismatch": "New passwords do not match",
+    "success_message": "Password changed successfully.",
+    "error_prefix": "Could not change password"
   }
 }

@@ -125,6 +125,16 @@ export default function LoginPage() {
             {loading ? t("submitting") : t("submit")}
           </button>
 
+          {/* Forgot password link */}
+          <div className="mt-3 text-center">
+            <Link
+              href="/forgot-password"
+              className="text-xs text-primary-700 hover:text-primary-800 font-medium"
+            >
+              {t("forgot_password")}
+            </Link>
+          </div>
+
           {/* Register link */}
           <div className="mt-4 text-center">
             <span className="text-xs text-text-secondary">
