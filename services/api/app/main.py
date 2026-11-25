@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.routers.incidents import router as incidents_router
+from app.incidents.router import router as incidents_router
 
 app = FastAPI(
     title="HealthCore — Incident Report Analysis API",
