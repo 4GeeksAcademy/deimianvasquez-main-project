@@ -26,8 +26,13 @@ export default function LoginPage() {
     setLoading(true);
     try {
       await login(email.trim(), password);
-      // Login successful — redirect to home
-      window.location.href = "/";
+      /* Read redirect param here (runtime, client‑side only) to avoid
+         SSR prerender issues with `window` being undefined. */
+      const redirectTo =
+        typeof window !== "undefined"
+          ? new URLSearchParams(window.location.search).get("redirect") || "/"
+          : "/";
+      window.location.href = redirectTo;
     } catch (err) {
       setError(
         err instanceof Error ? err.message : "Error al iniciar sesión"

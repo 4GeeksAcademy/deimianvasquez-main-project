@@ -21,13 +21,25 @@ export function setToken(token: string): void {
   try {
     localStorage.setItem("healthcore_token", token);
   } catch {
-    // localStorage not available (e.g. SSR) — ignore
+    // ignore
+  }
+  /* Also set a non‑HttpOnly cookie so the Next.js server‑side
+     middleware (proxy.ts) can check authentication before rendering HTML. */
+  try {
+    document.cookie = `healthcore_token=1; path=/; max-age=86400; SameSite=Lax`;
+  } catch {
+    // ignore
   }
 }
 
 export function clearToken(): void {
   try {
     localStorage.removeItem("healthcore_token");
+  } catch {
+    // ignore
+  }
+  try {
+    document.cookie = "healthcore_token=; path=/; max-age=0";
   } catch {
     // ignore
   }
