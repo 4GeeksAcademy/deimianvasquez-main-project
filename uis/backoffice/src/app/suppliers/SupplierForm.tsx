@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { CATEGORY_LABELS, ALL_CATEGORIES } from "./types";
+import { useTranslations } from "next-intl";
+import { ALL_CATEGORIES } from "./types";
 
 import { fetchWithAuth, API_BASE } from "@/services/api";
 
@@ -11,6 +12,7 @@ interface Props {
 }
 
 export default function SupplierForm({ onCreated, onCancel }: Props) {
+  const t = useTranslations("suppliers");
   const [form, setForm] = useState({
     name: "",
     country: "USA" as "USA" | "UK",
@@ -39,16 +41,16 @@ export default function SupplierForm({ onCreated, onCancel }: Props) {
 
     // Validaciones del lado del cliente
     if (!form.name.trim()) {
-      setError("El nombre del proveedor es requerido");
+      setError(t("form_name_required"));
       return;
     }
     if (form.categories.length === 0) {
-      setError("Debes seleccionar al menos una categoría");
+      setError(t("form_category_required"));
       return;
     }
     const rate = parseFloat(form.monthly_rate);
     if (isNaN(rate) || rate <= 0) {
-      setError("La tarifa mensual debe ser un número mayor a 0");
+      setError(t("form_rate_invalid"));
       return;
     }
 
@@ -88,14 +90,14 @@ export default function SupplierForm({ onCreated, onCancel }: Props) {
         if (Array.isArray(detail)) {
           setError(detail.map((d: { msg: string }) => d.msg).join(", "));
         } else {
-          setError(detail || "Error al crear el proveedor");
+          setError(detail || t("error_create"));
         }
         return;
       }
 
       onCreated();
     } catch {
-      setError("Error de conexión con el servidor");
+      setError(t("error_connection"));
     } finally {
       setSaving(false);
     }
@@ -107,7 +109,7 @@ export default function SupplierForm({ onCreated, onCancel }: Props) {
       className="rounded-xl border border-border bg-surface p-6 shadow-sm"
     >
       <h2 className="text-lg font-semibold text-brand-900 mb-4 font-heading">
-        Registrar nuevo proveedor
+        {t("form_title")}
       </h2>
 
       {error && (
@@ -120,14 +122,14 @@ export default function SupplierForm({ onCreated, onCancel }: Props) {
         {/* Nombre */}
         <div className="md:col-span-2">
           <label className="block text-sm font-medium text-text-primary mb-1">
-            Nombre del proveedor <span className="text-error">*</span>
+            {t("form_name")} <span className="text-error">*</span>
           </label>
           <input
             type="text"
             value={form.name}
             onChange={(e) => setForm({ ...form, name: e.target.value })}
             className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-700/20"
-            placeholder="Ej: Johnson Medical"
+            placeholder={t("form_name")}
             required
           />
         </div>
@@ -135,7 +137,7 @@ export default function SupplierForm({ onCreated, onCancel }: Props) {
         {/* País */}
         <div>
           <label className="block text-sm font-medium text-text-primary mb-1">
-            País <span className="text-error">*</span>
+            {t("form_country")} <span className="text-error">*</span>
           </label>
           <select
             value={form.country}
@@ -150,7 +152,7 @@ export default function SupplierForm({ onCreated, onCancel }: Props) {
         {/* Tarifa mensual */}
         <div>
           <label className="block text-sm font-medium text-text-primary mb-1">
-            Tarifa mensual ({form.country === "USA" ? "USD" : "GBP"}){" "}
+            {t("form_monthly_rate")} ({form.country === "USA" ? "USD" : "GBP"}){" "}
             <span className="text-error">*</span>
           </label>
           <div className="relative">
@@ -173,24 +175,24 @@ export default function SupplierForm({ onCreated, onCancel }: Props) {
         {/* Acuerdo de cumplimiento */}
         <div>
           <label className="block text-sm font-medium text-text-primary mb-1">
-            Acuerdo de cumplimiento
+            {t("form_compliance")}
           </label>
           <select
             value={form.compliance_agreement}
             onChange={(e) => setForm({ ...form, compliance_agreement: e.target.value })}
             className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-700/20"
           >
-            <option value="">— No aplica —</option>
-            <option value="BAA">BAA (USA)</option>
-            <option value="DPA">DPA (UK)</option>
-            <option value="both">BAA + DPA</option>
+            <option value="">{t("form_compliance_none")}</option>
+            <option value="BAA">{t("form_compliance_baa")}</option>
+            <option value="DPA">{t("form_compliance_dpa")}</option>
+            <option value="both">{t("form_compliance_both")}</option>
           </select>
         </div>
 
         {/* Fecha de renovación */}
         <div>
           <label className="block text-sm font-medium text-text-primary mb-1">
-            Fecha de renovación
+            {t("form_renewal")}
           </label>
           <input
             type="date"
@@ -203,21 +205,21 @@ export default function SupplierForm({ onCreated, onCancel }: Props) {
         {/* Email */}
         <div>
           <label className="block text-sm font-medium text-text-primary mb-1">
-            Email de contacto
+            {t("form_email")}
           </label>
           <input
             type="email"
             value={form.contact_email}
             onChange={(e) => setForm({ ...form, contact_email: e.target.value })}
             className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-700/20"
-            placeholder="proveedor@ejemplo.com"
+            placeholder={t("form_email_placeholder")}
           />
         </div>
 
         {/* Categorías */}
         <div className="md:col-span-2">
           <label className="block text-sm font-medium text-text-primary mb-2">
-            Categorías <span className="text-error">*</span>
+            {t("form_categories")} <span className="text-error">*</span>
           </label>
           <div className="flex flex-wrap gap-2">
             {ALL_CATEGORIES.map((cat) => (
@@ -231,7 +233,7 @@ export default function SupplierForm({ onCreated, onCancel }: Props) {
                     : "bg-surface text-text-secondary border-border hover:border-primary-700 hover:text-primary-700"
                 }`}
               >
-                {CATEGORY_LABELS[cat]}
+                {t(`cat_${cat}`)}
               </button>
             ))}
           </div>
@@ -240,14 +242,14 @@ export default function SupplierForm({ onCreated, onCancel }: Props) {
         {/* Notas */}
         <div className="md:col-span-2">
           <label className="block text-sm font-medium text-text-primary mb-1">
-            Notas internas
+            {t("form_notes")}
           </label>
           <textarea
             value={form.notes}
             onChange={(e) => setForm({ ...form, notes: e.target.value })}
             rows={2}
             className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-700/20 resize-none"
-            placeholder="Observaciones adicionales..."
+            placeholder={t("form_notes_placeholder")}
           />
         </div>
       </div>
@@ -260,14 +262,14 @@ export default function SupplierForm({ onCreated, onCancel }: Props) {
           className="px-4 py-2 rounded-lg border border-border text-sm text-text-secondary hover:bg-surface-muted transition-colors"
           disabled={saving}
         >
-          Cancelar
+          {t("cancel")}
         </button>
         <button
           type="submit"
           disabled={saving}
           className="px-4 py-2 rounded-lg bg-primary-700 text-white text-sm font-medium hover:bg-primary-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {saving ? "Guardando..." : "Registrar proveedor"}
+          {saving ? t("form_submitting") : t("form_submit")}
         </button>
       </div>
     </form>

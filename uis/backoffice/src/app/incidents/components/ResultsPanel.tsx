@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import type { AnalysisResult } from "../types";
 
 interface ResultsPanelProps {
@@ -8,6 +9,7 @@ interface ResultsPanelProps {
 }
 
 export default function ResultsPanel({ result, onExport }: ResultsPanelProps) {
+  const t = useTranslations("incidents");
   const totalPct =
     result.total_records > 0
       ? (result.valid_records / result.total_records) * 100
@@ -18,23 +20,23 @@ export default function ResultsPanel({ result, onExport }: ResultsPanelProps) {
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <SummaryCard
-          label="Total Registros"
+          label={t("total_records")}
           value={result.total_records}
           color="gray"
         />
         <SummaryCard
-          label="Válidos"
+          label={t("valid")}
           value={result.valid_records}
           subtext={`${totalPct.toFixed(1)}%`}
           color="success"
         />
         <SummaryCard
-          label="Inválidos"
+          label={t("invalid")}
           value={result.invalid_records}
           color="error"
         />
         <SummaryCard
-          label="Satisfacción Promedio"
+          label={t("avg_satisfaction")}
           value={result.satisfaction.average_score.toFixed(2)}
           suffix="/ 5.00"
           color="primary"
@@ -60,12 +62,11 @@ export default function ResultsPanel({ result, onExport }: ResultsPanelProps) {
                 />
               </svg>
               <h2 className="font-semibold text-error">
-                Registros Inválidos Detectados ({result.invalid_records})
+                {t("invalid_detected_count", { count: result.invalid_records })}
               </h2>
             </div>
             <p className="text-sm text-error mt-1">
-              Se encontraron registros que no cumplen con los requisitos de
-              validación
+              {t("invalid_description")}
             </p>
           </div>
           <div className="p-6">
@@ -92,7 +93,7 @@ export default function ResultsPanel({ result, onExport }: ResultsPanelProps) {
       <section className="bg-surface rounded-xl border border-border overflow-hidden">
         <div className="bg-surface-muted px-6 py-4 border-b border-border">
           <h2 className="font-semibold text-text-primary">
-            Desglose por Categoría
+            {t("by_category")}
           </h2>
         </div>
         <div className="p-6">
@@ -112,7 +113,7 @@ export default function ResultsPanel({ result, onExport }: ResultsPanelProps) {
       <section className="bg-surface rounded-xl border border-border overflow-hidden">
         <div className="bg-surface-muted px-6 py-4 border-b border-border">
           <h2 className="font-semibold text-text-primary">
-            Desglose por Estado
+            {t("by_status")}
           </h2>
         </div>
         <div className="p-6">
@@ -132,7 +133,7 @@ export default function ResultsPanel({ result, onExport }: ResultsPanelProps) {
       <section className="bg-surface rounded-xl border border-border overflow-hidden">
         <div className="bg-surface-muted px-6 py-4 border-b border-border">
           <h2 className="font-semibold text-text-primary">
-            Desglose por País
+            {t("by_country")}
           </h2>
         </div>
         <div className="p-6">
@@ -152,7 +153,7 @@ export default function ResultsPanel({ result, onExport }: ResultsPanelProps) {
       <section className="bg-surface rounded-xl border border-border overflow-hidden">
         <div className="bg-surface-muted px-6 py-4 border-b border-border">
           <h2 className="font-semibold text-text-primary">
-            Índice de Satisfacción
+            {t("satisfaction_index")}
           </h2>
         </div>
         <div className="p-6">
@@ -161,19 +162,19 @@ export default function ResultsPanel({ result, onExport }: ResultsPanelProps) {
               <p className="text-2xl font-bold text-primary-700">
                 {result.satisfaction.scored_cases}
               </p>
-              <p className="text-xs text-primary-700 mt-1">Casos Puntuados</p>
+              <p className="text-xs text-primary-700 mt-1">{t("scored_cases")}</p>
             </div>
             <div className="bg-primary-100 rounded-lg p-4 text-center">
               <p className="text-2xl font-bold text-primary-700">
                 {result.satisfaction.total_closed}
               </p>
-              <p className="text-xs text-primary-700 mt-1">Total Cerrados</p>
+              <p className="text-xs text-primary-700 mt-1">{t("total_closed")}</p>
             </div>
             <div className="bg-primary-100 rounded-lg p-4 text-center">
               <p className="text-2xl font-bold text-primary-700">
                 {result.satisfaction.average_score.toFixed(2)}
               </p>
-              <p className="text-xs text-primary-700 mt-1">Promedio / 5.00</p>
+              <p className="text-xs text-primary-700 mt-1">{t("average")} / 5.00</p>
             </div>
           </div>
 
@@ -232,7 +233,7 @@ export default function ResultsPanel({ result, onExport }: ResultsPanelProps) {
               d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
             />
           </svg>
-          Descargar resultados en CSV
+          {t("export_csv")}
         </button>
       </div>
     </div>

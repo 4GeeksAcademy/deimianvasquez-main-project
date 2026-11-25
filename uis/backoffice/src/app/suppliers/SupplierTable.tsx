@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import type { Supplier } from "./types";
-import { CATEGORY_LABELS } from "./types";
 
 import { fetchWithAuth, API_BASE } from "@/services/api";
 
@@ -12,6 +12,7 @@ interface Props {
 }
 
 export default function SupplierTable({ suppliers, onUpdate }: Props) {
+  const t = useTranslations("suppliers");
   const [editingRate, setEditingRate] = useState<number | null>(null);
   const [newRate, setNewRate] = useState("");
 
@@ -25,19 +26,19 @@ export default function SupplierTable({ suppliers, onUpdate }: Props) {
       });
       if (!res.ok) {
         const data = await res.json();
-        alert(`Error: ${data.detail || "No se pudo cambiar el estado"}`);
+        alert(`Error: ${data.detail || t("error_status")}`);
         return;
       }
       onUpdate();
     } catch {
-      alert("Error de conexión con el servidor");
+      alert(t("error_connection"));
     }
   };
 
   const handleRateUpdate = async (id: number) => {
     const rate = parseFloat(newRate);
     if (isNaN(rate) || rate <= 0) {
-      alert("La tarifa debe ser un número mayor a 0");
+      alert(t("rate_error"));
       return;
     }
     try {
@@ -48,14 +49,14 @@ export default function SupplierTable({ suppliers, onUpdate }: Props) {
       });
       if (!res.ok) {
         const data = await res.json();
-        alert(`Error: ${data.detail || "No se pudo actualizar la tarifa"}`);
+        alert(`Error: ${data.detail || t("error_rate")}`);
         return;
       }
       setEditingRate(null);
       setNewRate("");
       onUpdate();
     } catch {
-      alert("Error de conexión con el servidor");
+      alert(t("error_connection"));
     }
   };
 
@@ -69,13 +70,13 @@ export default function SupplierTable({ suppliers, onUpdate }: Props) {
       <table className="w-full text-sm">
         <thead>
           <tr className="bg-surface-muted border-b border-border">
-            <th className="text-left px-4 py-3 font-semibold text-text-primary">Proveedor</th>
-            <th className="text-left px-4 py-3 font-semibold text-text-primary">País</th>
-            <th className="text-left px-4 py-3 font-semibold text-text-primary">Categorías</th>
-            <th className="text-right px-4 py-3 font-semibold text-text-primary">Tarifa mensual</th>
-            <th className="text-center px-4 py-3 font-semibold text-text-primary">Estado</th>
-            <th className="text-center px-4 py-3 font-semibold text-text-primary">Cumplimiento</th>
-            <th className="text-center px-4 py-3 font-semibold text-text-primary">Acciones</th>
+            <th className="text-left px-4 py-3 font-semibold text-text-primary">{t("table_supplier")}</th>
+            <th className="text-left px-4 py-3 font-semibold text-text-primary">{t("table_country")}</th>
+            <th className="text-left px-4 py-3 font-semibold text-text-primary">{t("table_categories")}</th>
+            <th className="text-right px-4 py-3 font-semibold text-text-primary">{t("table_rate")}</th>
+            <th className="text-center px-4 py-3 font-semibold text-text-primary">{t("table_status")}</th>
+            <th className="text-center px-4 py-3 font-semibold text-text-primary">{t("table_compliance")}</th>
+            <th className="text-center px-4 py-3 font-semibold text-text-primary">{t("table_actions")}</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-border">
@@ -109,7 +110,7 @@ export default function SupplierTable({ suppliers, onUpdate }: Props) {
                       key={cat}
                       className="inline-block px-2 py-0.5 rounded-full bg-primary-100 text-primary-700 text-xs font-medium"
                     >
-                      {CATEGORY_LABELS[cat] || cat}
+                      {t(`cat_${cat}`)}
                     </span>
                   ))}
                 </div>
@@ -161,7 +162,7 @@ export default function SupplierTable({ suppliers, onUpdate }: Props) {
                     <span className="font-mono font-medium">
                       {formatCurrency(supplier.monthly_rate, supplier.currency)}
                     </span>
-                    <span className="ml-1 text-xs text-text-secondary">/{supplier.currency === "USD" ? "mes" : "mes"}</span>
+                    <span className="ml-1 text-xs text-text-secondary">/{t("per_month")}</span>
                   </button>
                 )}
               </td>
@@ -178,7 +179,7 @@ export default function SupplierTable({ suppliers, onUpdate }: Props) {
                       supplier.status === "active" ? "bg-success" : "bg-error"
                     }`}
                   />
-                  {supplier.status === "active" ? "Activo" : "Suspendido"}
+                  {supplier.status === "active" ? t("status_active") : t("status_suspended")}
                 </span>
               </td>
               <td className="px-4 py-3 text-center">
@@ -200,7 +201,7 @@ export default function SupplierTable({ suppliers, onUpdate }: Props) {
                       ? "bg-red-50 text-error hover:bg-red-100 border border-red-200"
                       : "bg-green-50 text-success hover:bg-green-100 border border-green-200"
                   }`}
-                  title={supplier.status === "active" ? "Suspender proveedor" : "Activar proveedor"}
+                  title={supplier.status === "active" ? t("suspend") : t("activate")}
                 >
                   <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     {supplier.status === "active" ? (
@@ -209,7 +210,7 @@ export default function SupplierTable({ suppliers, onUpdate }: Props) {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                     )}
                   </svg>
-                  {supplier.status === "active" ? "Suspender" : "Activar"}
+                  {supplier.status === "active" ? t("suspend") : t("activate")}
                 </button>
               </td>
             </tr>

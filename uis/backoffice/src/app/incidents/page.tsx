@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
+import { useTranslations } from "next-intl";
 import FileUpload from "./components/FileUpload";
 import ResultsPanel from "./components/ResultsPanel";
 import type { AnalysisResult } from "./types";
@@ -8,6 +9,7 @@ import { fetchWithAuth, API_BASE } from "@/services/api";
 import { requireAuth } from "@/services/auth-guard";
 
 export default function IncidentsPage() {
+  const t = useTranslations("incidents");
   requireAuth();
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const [loading, setLoading] = useState(false);
@@ -30,7 +32,7 @@ export default function IncidentsPage() {
       if (!response.ok) {
         const errData = await response.json().catch(() => null);
         throw new Error(
-          errData?.detail || `Error del servidor: ${response.status}`
+          errData?.detail || `${t("error_prefix")}: ${response.status}`
         );
       }
 
@@ -38,17 +40,17 @@ export default function IncidentsPage() {
       setResult(data);
     } catch (err) {
       setError(
-        err instanceof Error ? err.message : "Error desconocido al procesar el archivo"
+        err instanceof Error ? err.message : t("error_unknown")
       );
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [t]);
 
   const handleExport = useCallback(async () => {
     try {
       const response = await fetchWithAuth(`${API_BASE}/api/incidents/results/export`);
-      if (!response.ok) throw new Error("Error al exportar resultados");
+      if (!response.ok) throw new Error(t("error_export"));
 
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
@@ -61,10 +63,10 @@ export default function IncidentsPage() {
       window.URL.revokeObjectURL(url);
     } catch (err) {
       setError(
-        err instanceof Error ? err.message : "Error al descargar el CSV"
+        err instanceof Error ? err.message : t("error_download")
       );
     }
-  }, []);
+  }, [t]);
 
   return (
     <div className="flex-1 flex flex-col">
@@ -73,10 +75,10 @@ export default function IncidentsPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div>
             <h1 className="text-2xl font-bold text-brand-900 font-heading">
-              Análisis de Incidentes
+              {t("title")}
             </h1>
             <p className="text-sm text-text-secondary mt-0.5">
-              Carga un archivo CSV para validar registros y visualizar métricas
+              {t("subtitle")}
             </p>
           </div>
         </div>
@@ -106,7 +108,7 @@ export default function IncidentsPage() {
                 />
               </svg>
               <div>
-                <h3 className="font-medium text-error">Error</h3>
+                <h3 className="font-medium text-error">{t("error_prefix")}</h3>
                 <p className="text-sm text-error mt-1">{error}</p>
               </div>
             </div>
