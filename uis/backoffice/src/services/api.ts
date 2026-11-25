@@ -155,6 +155,36 @@ export async function fetchWithAuth(
   return res;
 }
 
+/* ── Profile management ────────────────────────────────────────── */
+
+export interface ProfileUpdate {
+  name?: string | null;
+  phone?: string | null;
+  address?: string | null;
+}
+
+/**
+ * Update the authenticated user's profile (name, phone, address).
+ * Calls PUT /profiles/me and then re-fetches the current user to
+ * refresh the cache.
+ */
+export async function updateProfile(data: ProfileUpdate): Promise<CurrentUser> {
+  const res = await fetchWithAuth(`${API_BASE}/profiles/me`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  });
+
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || "Error al actualizar el perfil");
+  }
+
+  // Re-fetch full user to refresh cache
+  const user = await fetchMe();
+  return user;
+}
+
 /* ── Logout ───────────────────────────────────────────────────── */
 
 export function logout(): void {

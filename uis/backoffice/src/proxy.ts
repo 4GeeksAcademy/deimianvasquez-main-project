@@ -13,7 +13,7 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 /** Routes that require an active session */
-const PROTECTED_ROUTES = ["/suppliers", "/incidents"];
+const PROTECTED_ROUTES = ["/suppliers", "/incidents", "/account"];
 
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
