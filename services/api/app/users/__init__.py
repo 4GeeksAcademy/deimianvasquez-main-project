@@ -1,0 +1,1 @@
+"""Users module — CRUD for user credentials (email + password)."""

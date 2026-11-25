@@ -1,12 +1,47 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import {
+  isAuthenticated,
+  getCachedUser,
+  fetchMe,
+  logout,
+  clearToken,
+  setCachedUser,
+} from "@/services/api";
 
 export default function Navbar() {
   const pathname = usePathname();
 
   const isActive = (path: string) => pathname === path;
+
+  // Fetch current user on mount if we have a token but no cached user
+  const [user, setUser] = useState<ReturnType<typeof getCachedUser> | "loading" | null>(null);
+
+  useEffect(() => {
+    if (isAuthenticated()) {
+      const cached = getCachedUser();
+      if (cached) {
+        setUser(cached);
+      } else {
+        setUser("loading");
+        fetchMe()
+          .then((u) => {
+            setUser(u);
+            setCachedUser(u);
+          })
+          .catch(() => {
+            // Token invalid — clear it
+            clearToken();
+            setUser(null);
+          });
+      }
+    } else {
+      setUser(null);
+    }
+  }, []);
 
   return (
     <nav className="bg-surface border-b border-border shadow-sm">
@@ -22,7 +57,7 @@ export default function Navbar() {
             </span>
           </Link>
 
-          {/* Navigation Links */}
+          {/* Navigation Links & User Menu */}
           <div className="flex items-center gap-1">
             <NavLink href="/" active={isActive("/")}>
               <svg
@@ -72,6 +107,45 @@ export default function Navbar() {
               </svg>
               Proveedores
             </NavLink>
+
+            {/* User section */}
+            <div className="ml-2 flex items-center gap-1">
+              {user === "loading" ? (
+                <span className="text-xs text-text-secondary px-2">Cargando...</span>
+              ) : user ? (
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-text-secondary px-2 truncate max-w-35">
+                    {user.profile?.name || user.email}
+                  </span>
+                  {user.role === "admin" && (
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-primary-100 text-primary-700 text-xs font-medium">
+                      Admin
+                    </span>
+                  )}
+                  <button
+                    onClick={logout}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-error hover:bg-error/10 transition-colors"
+                  >
+                    Salir
+                  </button>
+                </div>
+              ) : (
+                <>
+                  <Link
+                    href="/login"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-primary-700 hover:bg-primary-100 transition-colors"
+                  >
+                    Iniciar sesión
+                  </Link>
+                  <Link
+                    href="/register"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-primary-700 text-white hover:bg-primary-800 transition-colors"
+                  >
+                    Registrarse
+                  </Link>
+                </>
+              )}
+            </div>
           </div>
         </div>
       </div>

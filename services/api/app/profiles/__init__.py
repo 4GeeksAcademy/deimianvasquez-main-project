@@ -1,0 +1,1 @@
+"""Profiles module — 1:1 profile data for each user."""

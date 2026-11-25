@@ -1,0 +1,1 @@
+"""Authentication module — login, token, JWT handling."""

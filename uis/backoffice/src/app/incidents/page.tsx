@@ -4,10 +4,11 @@ import { useState, useCallback } from "react";
 import FileUpload from "./components/FileUpload";
 import ResultsPanel from "./components/ResultsPanel";
 import type { AnalysisResult } from "./types";
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
+import { fetchWithAuth, API_BASE } from "@/services/api";
+import { requireAuth } from "@/services/auth-guard";
 
 export default function IncidentsPage() {
+  requireAuth();
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -21,7 +22,7 @@ export default function IncidentsPage() {
       const formData = new FormData();
       formData.append("file", file);
 
-      const response = await fetch(`${API_URL}/api/incidents/analyze`, {
+      const response = await fetchWithAuth(`${API_BASE}/api/incidents/analyze`, {
         method: "POST",
         body: formData,
       });
@@ -46,7 +47,7 @@ export default function IncidentsPage() {
 
   const handleExport = useCallback(async () => {
     try {
-      const response = await fetch(`${API_URL}/api/incidents/results/export`);
+      const response = await fetchWithAuth(`${API_BASE}/api/incidents/results/export`);
       if (!response.ok) throw new Error("Error al exportar resultados");
 
       const blob = await response.blob();

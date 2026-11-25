@@ -4,7 +4,7 @@ import { useState } from "react";
 import type { Supplier } from "./types";
 import { CATEGORY_LABELS } from "./types";
 
-const API_BASE = "http://localhost:8000";
+import { fetchWithAuth, API_BASE } from "@/services/api";
 
 interface Props {
   suppliers: Supplier[];
@@ -18,7 +18,7 @@ export default function SupplierTable({ suppliers, onUpdate }: Props) {
   const handleStatusToggle = async (supplier: Supplier) => {
     const newStatus = supplier.status === "active" ? "suspended" : "active";
     try {
-      const res = await fetch(`${API_BASE}/suppliers/${supplier.id}/status`, {
+      const res = await fetchWithAuth(`${API_BASE}/suppliers/${supplier.id}/status`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status: newStatus }),
@@ -41,7 +41,7 @@ export default function SupplierTable({ suppliers, onUpdate }: Props) {
       return;
     }
     try {
-      const res = await fetch(`${API_BASE}/suppliers/${id}/rate`, {
+      const res = await fetchWithAuth(`${API_BASE}/suppliers/${id}/rate`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ monthly_rate: rate }),

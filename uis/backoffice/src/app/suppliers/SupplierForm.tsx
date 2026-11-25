@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { CATEGORY_LABELS, ALL_CATEGORIES } from "./types";
 
-const API_BASE = "http://localhost:8000";
+import { fetchWithAuth, API_BASE } from "@/services/api";
 
 interface Props {
   onCreated: () => void;
@@ -76,7 +76,7 @@ export default function SupplierForm({ onCreated, onCancel }: Props) {
         payload.notes = form.notes.trim();
       }
 
-      const res = await fetch(`${API_BASE}/suppliers`, {
+      const res = await fetchWithAuth(`${API_BASE}/suppliers`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
