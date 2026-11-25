@@ -1,24 +1,24 @@
 """
 HealthCore — Incidents Router
 ==============================
-Endpoints for CSV analysis upload and export.
-Uses shared analysis logic from packages/shared/python/healthcore/analyzer.py.
-"""
+FastAPI endpoints for CSV analysis upload and export.
 
-from typing import Optional
+Thin controller: delegates business logic to the service layer.
+"""
 
 from fastapi import APIRouter, File, HTTPException, UploadFile
 from fastapi.responses import StreamingResponse
 
-from healthcore.analyzer import AnalysisResult, analyze_csv_content, export_csv_from_result
+from app.incidents.schemas import AnalysisResponse
+from app.incidents.service import (
+    export_last_result_as_csv,
+    process_csv_analysis,
+)
 
 router = APIRouter(prefix="/api/incidents", tags=["incidents"])
 
-# In-memory storage for the last analysis result
-_last_analysis: Optional[AnalysisResult] = None
 
-
-@router.post("/analyze")
+@router.post("/analyze", response_model=AnalysisResponse)
 async def analyze_incidents(file: UploadFile = File(...)):
     """
     Upload a CSV file of incident reports and get a validated analysis summary in JSON.
@@ -28,8 +28,6 @@ async def analyze_incidents(file: UploadFile = File(...)):
       by country, and satisfaction index.
     - NEVER returns patient_id values (HIPAA / UK GDPR compliant).
     """
-    global _last_analysis  # noqa: PLW0603
-
     # Validate file presence
     if not file:
         raise HTTPException(status_code=400, detail="No file provided. Send a CSV file as 'file'.")
@@ -48,22 +46,7 @@ async def analyze_incidents(file: UploadFile = File(...)):
             detail="Invalid file encoding. File must be UTF-8 encoded CSV.",
         )
 
-    # Check for empty content (just headers or nothing)
-    lines = [l.strip() for l in content.split("\n") if l.strip()]
-    if len(lines) < 2:
-        raise HTTPException(
-            status_code=400,
-            detail="File has no data rows. The CSV must contain a header row and at least one data row.",
-        )
-
-    # Verify it looks like CSV with comma separator
-    if "," not in lines[0]:
-        raise HTTPException(
-            status_code=400,
-            detail="Invalid CSV format. File must be comma-separated (CSV).",
-        )
-
-    # Check file extension / MIME type
+    # Check file extension
     original_filename = (file.filename or "").lower()
     if not original_filename.endswith(".csv"):
         raise HTTPException(
@@ -71,19 +54,18 @@ async def analyze_incidents(file: UploadFile = File(...)):
             detail="Invalid file type. Only CSV files are accepted.",
         )
 
-    # Run analysis
+    # Delegate to service layer
     try:
-        result = analyze_csv_content(content)
+        result = process_csv_analysis(content)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
         raise HTTPException(
             status_code=500,
             detail=f"Error processing CSV: {str(e)}",
         )
 
-    # Store for export
-    _last_analysis = result
-
-    return result.to_dict()
+    return result
 
 
 @router.get("/results/export")
@@ -94,13 +76,10 @@ async def export_results():
     Returns a CSV with columns: metric, value, percentage.
     Returns 404 if no analysis has been performed yet.
     """
-    if _last_analysis is None:
-        raise HTTPException(
-            status_code=404,
-            detail="No analysis results available. Perform a POST /api/incidents/analyze first.",
-        )
-
-    csv_content = export_csv_from_result(_last_analysis)
+    try:
+        csv_content = export_last_result_as_csv()
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
 
     return StreamingResponse(
         iter([csv_content]),

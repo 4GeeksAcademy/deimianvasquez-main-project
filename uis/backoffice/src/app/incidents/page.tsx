@@ -5,7 +5,7 @@ import FileUpload from "./components/FileUpload";
 import ResultsPanel from "./components/ResultsPanel";
 import type { AnalysisResult } from "./types";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8001";
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
 
 export default function IncidentsPage() {
   const [result, setResult] = useState<AnalysisResult | null>(null);
