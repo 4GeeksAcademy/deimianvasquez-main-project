@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import { requireAuth } from "@/services/auth-guard";
 import {
   getCachedUser,
@@ -11,6 +12,7 @@ import type { CurrentUser } from "@/services/api";
 
 export default function ProfilePage() {
   requireAuth();
+  const t = useTranslations("profile");
 
   const [user, setUser] = useState<CurrentUser | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
@@ -40,7 +42,7 @@ export default function ProfilePage() {
           setAddress(u.profile?.address || "");
         })
         .catch(() => {
-          setError("No se pudo cargar la información del perfil.");
+          setError(t("error_load"));
         })
         .finally(() => setLoading(false));
     }
@@ -61,10 +63,10 @@ export default function ProfilePage() {
       setPhone(updated.profile?.phone || "");
       setAddress(updated.profile?.address || "");
       setEditing(false);
-      setSuccess("Perfil actualizado correctamente.");
+      setSuccess(t("save_success"));
     } catch (err) {
       setError(
-        err instanceof Error ? err.message : "Error al actualizar el perfil"
+        err instanceof Error ? err.message : t("error_update")
       );
     }
   };
@@ -84,7 +86,7 @@ export default function ProfilePage() {
   if (loading) {
     return (
       <div className="flex-1 flex items-center justify-center min-h-64">
-        <p className="text-sm text-text-secondary">Cargando perfil...</p>
+        <p className="text-sm text-text-secondary">{t("loading")}</p>
       </div>
     );
   }
@@ -93,9 +95,9 @@ export default function ProfilePage() {
     return (
       <div className="flex-1 flex items-center justify-center min-h-64">
         <div className="bg-surface rounded-xl border border-border p-6 max-w-md text-center">
-          <h1 className="text-xl font-bold text-error">Error</h1>
+          <h1 className="text-xl font-bold text-error">{t("error_title")}</h1>
           <p className="text-sm text-text-secondary mt-2">
-            {error || "No se pudo cargar la información del usuario."}
+            {error || t("error_no_user")}
           </p>
         </div>
       </div>
@@ -107,10 +109,10 @@ export default function ProfilePage() {
       {/* Page Header */}
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-brand-900 font-heading">
-          Mi Perfil
+          {t("title")}
         </h1>
         <p className="text-sm text-text-secondary mt-1">
-          Administra tu información personal
+          {t("subtitle")}
         </p>
       </div>
 
@@ -133,7 +135,7 @@ export default function ProfilePage() {
         {/* Email (read-only) */}
         <div className="mb-4">
           <label className="block text-xs font-medium text-text-secondary mb-1">
-            Correo electrónico
+            {t("email_label")}
           </label>
           <p className="text-sm text-text-primary">{user.email}</p>
         </div>
@@ -141,14 +143,14 @@ export default function ProfilePage() {
         {/* Role (read-only) */}
         <div className="mb-4">
           <label className="block text-xs font-medium text-text-secondary mb-1">
-            Rol
+            {t("role_label")}
           </label>
           <p className="text-sm text-text-primary">
             {user.role === "admin"
-              ? "Administrador"
+              ? t("role_admin")
               : user.role === "manager"
-                ? "Gestor"
-                : "Usuario"}
+                ? t("role_manager")
+                : t("role_user")}
           </p>
         </div>
 
@@ -163,14 +165,14 @@ export default function ProfilePage() {
                 htmlFor="profile-name"
                 className="block text-sm font-medium text-text-secondary mb-1"
               >
-                Nombre
+                {t("name_label")}
               </label>
               <input
                 id="profile-name"
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="Tu nombre completo"
+                placeholder={t("name_placeholder")}
                 maxLength={100}
                 className="w-full rounded-lg border border-border bg-surface px-3 py-2.5 text-sm text-text-primary focus:outline-none focus:ring-2 focus:ring-primary-700/20"
               />
@@ -182,14 +184,14 @@ export default function ProfilePage() {
                 htmlFor="profile-phone"
                 className="block text-sm font-medium text-text-secondary mb-1"
               >
-                Teléfono
+                {t("phone_label")}
               </label>
               <input
                 id="profile-phone"
                 type="tel"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
-                placeholder="Ej: +34 600 123 456"
+                placeholder={t("phone_placeholder")}
                 maxLength={30}
                 className="w-full rounded-lg border border-border bg-surface px-3 py-2.5 text-sm text-text-primary focus:outline-none focus:ring-2 focus:ring-primary-700/20"
               />
@@ -201,14 +203,14 @@ export default function ProfilePage() {
                 htmlFor="profile-address"
                 className="block text-sm font-medium text-text-secondary mb-1"
               >
-                Dirección
+                {t("address_label")}
               </label>
               <input
                 id="profile-address"
                 type="text"
                 value={address}
                 onChange={(e) => setAddress(e.target.value)}
-                placeholder="Ej: Calle Principal 123, Ciudad"
+                placeholder={t("address_placeholder")}
                 maxLength={255}
                 className="w-full rounded-lg border border-border bg-surface px-3 py-2.5 text-sm text-text-primary focus:outline-none focus:ring-2 focus:ring-primary-700/20"
               />
@@ -220,13 +222,13 @@ export default function ProfilePage() {
                 onClick={handleSave}
                 className="px-4 py-2 rounded-lg bg-primary-700 text-white text-sm font-medium hover:bg-primary-800 transition-colors"
               >
-                Guardar cambios
+                {t("save")}
               </button>
               <button
                 onClick={handleCancel}
                 className="px-4 py-2 rounded-lg border border-border text-text-secondary text-sm font-medium hover:bg-surface-muted transition-colors"
               >
-                Cancelar
+                {t("cancel")}
               </button>
             </div>
           </>
@@ -236,11 +238,11 @@ export default function ProfilePage() {
             {/* Name */}
             <div className="mb-4">
               <label className="block text-xs font-medium text-text-secondary mb-1">
-                Nombre
+                {t("name_label")}
               </label>
               <p className="text-sm text-text-primary">
                 {user.profile?.name || (
-                  <span className="italic text-text-secondary">No especificado</span>
+                  <span className="italic text-text-secondary">{t("not_specified")}</span>
                 )}
               </p>
             </div>
@@ -248,11 +250,11 @@ export default function ProfilePage() {
             {/* Phone */}
             <div className="mb-4">
               <label className="block text-xs font-medium text-text-secondary mb-1">
-                Teléfono
+                {t("phone_label")}
               </label>
               <p className="text-sm text-text-primary">
                 {user.profile?.phone || (
-                  <span className="italic text-text-secondary">No especificado</span>
+                  <span className="italic text-text-secondary">{t("not_specified")}</span>
                 )}
               </p>
             </div>
@@ -260,11 +262,11 @@ export default function ProfilePage() {
             {/* Address */}
             <div className="mb-4">
               <label className="block text-xs font-medium text-text-secondary mb-1">
-                Dirección
+                {t("address_label")}
               </label>
               <p className="text-sm text-text-primary">
                 {user.profile?.address || (
-                  <span className="italic text-text-secondary">No especificado</span>
+                  <span className="italic text-text-secondary">{t("not_specified")}</span>
                 )}
               </p>
             </div>
@@ -274,7 +276,7 @@ export default function ProfilePage() {
               onClick={() => setEditing(true)}
               className="mt-2 px-4 py-2 rounded-lg bg-primary-700 text-white text-sm font-medium hover:bg-primary-800 transition-colors"
             >
-              Editar perfil
+              {t("edit")}
             </button>
           </>
         )}

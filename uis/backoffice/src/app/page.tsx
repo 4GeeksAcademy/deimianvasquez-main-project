@@ -1,6 +1,11 @@
+"use client";
+
+import { useTranslations } from "next-intl";
 import Link from "next/link";
 
 export default function Home() {
+  const t = useTranslations("home");
+
   return (
     <div className="flex-1 flex flex-col items-center justify-center bg-surface-muted">
       <div className="max-w-2xl mx-auto px-4 text-center">
@@ -22,14 +27,13 @@ export default function Home() {
         </div>
 
         <h1 className="text-4xl font-bold text-brand-900 mb-3 font-heading">
-          HealthCore
+          {t("title")}
         </h1>
         <p className="text-lg text-text-secondary mb-2">
-          Panel de gestión y análisis de incidencias
+          {t("subtitle")}
         </p>
         <p className="text-sm text-text-secondary mb-10 max-w-md mx-auto">
-          Sistema de análisis de reportes de incidentes de pacientes para
-          clínicas en Estados Unidos y Reino Unido
+          {t("description")}
         </p>
 
         {/* Cards */}
@@ -54,11 +58,10 @@ export default function Home() {
               </svg>
             </div>
             <h2 className="text-lg font-semibold text-text-primary mb-1">
-              Análisis de Incidentes
+              {t("incidents_title")}
             </h2>
             <p className="text-sm text-text-secondary">
-              Carga archivos CSV, valida registros y visualiza métricas de
-              satisfacción, categorías y más.
+              {t("incidents_desc")}
             </p>
           </Link>
 
@@ -79,9 +82,9 @@ export default function Home() {
               </svg>
             </div>
             <h2 className="text-lg font-semibold text-text-secondary mb-1">
-              Configuración
+              {t("suppliers_title")}
             </h2>
-            <p className="text-sm text-text-secondary">Próximamente</p>
+            <p className="text-sm text-text-secondary">{t("suppliers_desc")}</p>
           </div>
         </div>
       </div>

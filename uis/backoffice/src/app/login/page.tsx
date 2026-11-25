@@ -2,9 +2,12 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { login } from "@/services/api";
+import LanguageSwitcher from "@/app/components/LanguageSwitcher";
 
 export default function LoginPage() {
+  const t = useTranslations("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -15,19 +18,17 @@ export default function LoginPage() {
     setError(null);
 
     if (!email.trim()) {
-      setError("El correo electrónico es requerido");
+      setError(t("email_required"));
       return;
     }
     if (!password) {
-      setError("La contraseña es requerida");
+      setError(t("password_required"));
       return;
     }
 
     setLoading(true);
     try {
       await login(email.trim(), password);
-      /* Read redirect param here (runtime, client‑side only) to avoid
-         SSR prerender issues with `window` being undefined. */
       const redirectTo =
         typeof window !== "undefined"
           ? new URLSearchParams(window.location.search).get("redirect") || "/"
@@ -35,7 +36,7 @@ export default function LoginPage() {
       window.location.href = redirectTo;
     } catch (err) {
       setError(
-        err instanceof Error ? err.message : "Error al iniciar sesión"
+        err instanceof Error ? err.message : t("error_prefix")
       );
     } finally {
       setLoading(false);
@@ -45,16 +46,21 @@ export default function LoginPage() {
   return (
     <div className="flex-1 flex items-center justify-center bg-surface-muted">
       <div className="w-full max-w-sm mx-4">
+        {/* Language Switcher */}
+        <div className="flex justify-end mb-4">
+          <LanguageSwitcher />
+        </div>
+
         {/* Logo / Brand */}
         <div className="text-center mb-8">
           <div className="w-14 h-14 rounded-2xl bg-primary-700 flex items-center justify-center mx-auto mb-3">
             <span className="text-white font-bold text-xl">HC</span>
           </div>
           <h1 className="text-2xl font-bold text-brand-900 font-heading">
-            Iniciar sesión
+            {t("title")}
           </h1>
           <p className="text-sm text-text-secondary mt-1">
-            Ingresa a tu cuenta de HealthCore
+            {t("subtitle")}
           </p>
         </div>
 
@@ -76,14 +82,14 @@ export default function LoginPage() {
               htmlFor="email"
               className="block text-sm font-medium text-text-secondary mb-1"
             >
-              Correo electrónico
+              {t("email_label")}
             </label>
             <input
               id="email"
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="ej: usuario@healthcore.com"
+              placeholder={t("email_placeholder")}
               autoComplete="email"
               required
               className="w-full rounded-lg border border-border bg-surface px-3 py-2.5 text-sm text-text-primary focus:outline-none focus:ring-2 focus:ring-primary-700/20"
@@ -96,14 +102,14 @@ export default function LoginPage() {
               htmlFor="password"
               className="block text-sm font-medium text-text-secondary mb-1"
             >
-              Contraseña
+              {t("password_label")}
             </label>
             <input
               id="password"
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
+              placeholder={t("password_placeholder")}
               autoComplete="current-password"
               required
               className="w-full rounded-lg border border-border bg-surface px-3 py-2.5 text-sm text-text-primary focus:outline-none focus:ring-2 focus:ring-primary-700/20"
@@ -116,19 +122,19 @@ export default function LoginPage() {
             disabled={loading}
             className="w-full py-2.5 rounded-lg bg-primary-700 text-white text-sm font-semibold hover:bg-primary-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {loading ? "Iniciando sesión..." : "Iniciar sesión"}
+            {loading ? t("submitting") : t("submit")}
           </button>
 
           {/* Register link */}
           <div className="mt-4 text-center">
             <span className="text-xs text-text-secondary">
-              ¿No tienes cuenta?{" "}
+              {t("no_account")}{" "}
             </span>
             <Link
               href="/register"
               className="text-xs text-primary-700 hover:text-primary-800 font-medium"
             >
-              Regístrate
+              {t("register_link")}
             </Link>
           </div>
         </form>

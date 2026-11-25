@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, type DragEvent, type ChangeEvent } from "react";
+import { useTranslations } from "next-intl";
 
 interface FileUploadProps {
   onFileUpload: (file: File) => void;
@@ -8,6 +9,7 @@ interface FileUploadProps {
 }
 
 export default function FileUpload({ onFileUpload, loading }: FileUploadProps) {
+  const t = useTranslations("incidents");
   const [dragOver, setDragOver] = useState(false);
   const [fileName, setFileName] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -72,10 +74,10 @@ export default function FileUpload({ onFileUpload, loading }: FileUploadProps) {
           <div className="py-4">
             <div className="w-12 h-12 border-4 border-primary-100 border-t-primary-700 rounded-full animate-spin mx-auto mb-4" />
             <p className="text-text-primary font-medium">
-              Analizando archivo...
+              {t("analyzing")}
             </p>
             <p className="text-sm text-text-secondary mt-1">
-              Procesando {fileName || "incidencias"}
+              {t("processing", { fileName: fileName || "incidencias" })}
             </p>
           </div>
         ) : (
@@ -97,15 +99,15 @@ export default function FileUpload({ onFileUpload, loading }: FileUploadProps) {
             </div>
             <p className="text-text-primary font-medium">
               {fileName
-                ? `Archivo seleccionado: ${fileName}`
-                : "Arrastra tu archivo CSV aquí o haz clic para seleccionar"}
+                ? t("dropzone_selected", { fileName })
+                : t("dropzone_text")}
             </p>
             <p className="text-sm text-text-secondary mt-2">
-              Solo archivos CSV con formato de reporte de incidentes de HealthCore
+              {t("dropzone_hint")}
             </p>
             {fileName && (
               <p className="text-xs text-text-secondary mt-2">
-                Haz clic nuevamente para cambiar de archivo
+                {t("dropzone_change")}
               </p>
             )}
           </>

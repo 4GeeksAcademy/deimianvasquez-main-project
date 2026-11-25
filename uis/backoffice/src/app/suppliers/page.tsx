@@ -1,28 +1,31 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import SupplierTable from "./SupplierTable";
 import SupplierForm from "./SupplierForm";
 import type { Supplier } from "./types";
 import { fetchWithAuth, API_BASE } from "@/services/api";
 import { requireAuth } from "@/services/auth-guard";
 
-const CATEGORIES = [
-  { value: "", label: "Todas las categorías" },
-  { value: "medical_supplies", label: "Insumos médicos" },
-  { value: "laboratory_services", label: "Servicios de laboratorio" },
-  { value: "pharmaceutical", label: "Farmacéutica" },
-  { value: "clinical_software", label: "Software clínico" },
-  { value: "it_infrastructure", label: "Infraestructura TI" },
-  { value: "hr_and_payroll_software", label: "RRHH y nómina" },
-  { value: "cleaning_and_facilities", label: "Limpieza e instalaciones" },
-  { value: "patient_communication", label: "Comunicación con pacientes" },
-  { value: "billing_and_coding_software", label: "Facturación y codificación" },
-  { value: "training_platforms", label: "Plataformas de formación" },
-];
-
 export default function SuppliersPage() {
   requireAuth();
+  const t = useTranslations("suppliers");
+
+  const CATEGORIES = [
+  { value: "", label: t("all_categories") },
+  { value: "medical_supplies", label: t("cat_medical_supplies") },
+  { value: "laboratory_services", label: t("cat_laboratory_services") },
+  { value: "pharmaceutical", label: t("cat_pharmaceutical") },
+  { value: "clinical_software", label: t("cat_clinical_software") },
+  { value: "it_infrastructure", label: t("cat_it_infrastructure") },
+  { value: "hr_and_payroll_software", label: t("cat_hr_and_payroll_software") },
+  { value: "cleaning_and_facilities", label: t("cat_cleaning_and_facilities") },
+  { value: "patient_communication", label: t("cat_patient_communication") },
+  { value: "billing_and_coding_software", label: t("cat_billing_and_coding_software") },
+  { value: "training_platforms", label: t("cat_training_platforms") },
+];
+
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -74,10 +77,10 @@ export default function SuppliersPage() {
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-bold text-brand-900 font-heading">
-            Directorio de Proveedores
+            {t("title")}
           </h1>
           <p className="text-sm text-text-secondary mt-1">
-            Gestiona los proveedores clínicos y tecnológicos de HealthCore
+            {t("subtitle")}
           </p>
         </div>
         <button
@@ -87,7 +90,7 @@ export default function SuppliersPage() {
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
           </svg>
-          {showForm ? "Cerrar" : "Nuevo proveedor"}
+          {showForm ? t("btn_close") : t("btn_new_supplier")}
         </button>
       </div>
 
@@ -102,7 +105,7 @@ export default function SuppliersPage() {
       <div className="flex items-center gap-4 mb-4">
         <div className="flex items-center gap-2">
           <label htmlFor="country" className="text-sm font-medium text-text-secondary">
-            País:
+            {t("filter_country")}
           </label>
           <select
             id="country"
@@ -113,7 +116,7 @@ export default function SuppliersPage() {
             }}
             className="rounded-lg border border-border bg-surface px-3 py-2 text-sm text-text-primary focus:outline-none focus:ring-2 focus:ring-primary-700/20"
           >
-            <option value="">Todos</option>
+            <option value="">{t("filter_all_countries")}</option>
             <option value="USA">USA</option>
             <option value="UK">UK</option>
           </select>
@@ -121,7 +124,7 @@ export default function SuppliersPage() {
 
         <div className="flex items-center gap-2">
           <label htmlFor="category" className="text-sm font-medium text-text-secondary">
-            Categoría:
+            {t("filter_category")}
           </label>
           <select
             id="category"
@@ -149,19 +152,19 @@ export default function SuppliersPage() {
             }}
             className="text-sm text-primary-700 hover:text-primary-800 font-medium"
           >
-            Limpiar filtros
+            {t("filter_clear")}
           </button>
         )}
       </div>
 
       {/* Tabla */}
       {loading ? (
-        <div className="text-center py-12 text-text-secondary">Cargando proveedores...</div>
+        <div className="text-center py-12 text-text-secondary">{t("loading")}</div>
       ) : error ? (
         <div className="text-center py-12 text-error">{error}</div>
       ) : suppliers.length === 0 ? (
         <div className="text-center py-12 text-text-secondary">
-          No se encontraron proveedores con los filtros seleccionados.
+          {t("no_suppliers")}
         </div>
       ) : (
         <>
@@ -170,7 +173,7 @@ export default function SuppliersPage() {
           {/* Paginación */}
           <div className="flex items-center justify-between mt-4 text-sm text-text-secondary">
             <span>
-              Mostrando {Math.min(limit, total - skip || limit)} de {total} proveedores
+              {t("pagination_showing", { count: Math.min(limit, total - skip || limit), total })}
             </span>
             <div className="flex items-center gap-2">
               <button
@@ -178,7 +181,7 @@ export default function SuppliersPage() {
                 disabled={skip === 0}
                 className="px-3 py-1.5 rounded border border-border bg-surface hover:bg-surface-muted disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
               >
-                Anterior
+                {t("pagination_previous")}
               </button>
               {Array.from({ length: Math.min(totalPages, 7) }, (_, i) => {
                 const startPage = Math.max(0, currentPage - 4);
@@ -203,7 +206,7 @@ export default function SuppliersPage() {
                 disabled={skip + limit >= total}
                 className="px-3 py-1.5 rounded border border-border bg-surface hover:bg-surface-muted disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
               >
-                Siguiente
+                {t("pagination_next")}
               </button>
             </div>
           </div>
