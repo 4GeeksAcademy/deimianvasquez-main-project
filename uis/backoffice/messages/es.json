@@ -25,7 +25,8 @@
     "email_required": "El correo electrónico es requerido",
     "password_required": "La contraseña es requerida",
     "error_prefix": "Error al iniciar sesión",
-    "invalid_credentials": "Credenciales inválidas"
+    "invalid_credentials": "Credenciales inválidas",
+    "forgot_password": "¿Olvidaste tu contraseña?"
   },
   "register": {
     "title": "Crear cuenta",
@@ -182,5 +183,55 @@
     "loading": "Cargando perfil...",
     "error_title": "Error",
     "error_no_user": "No se pudo cargar la información del usuario."
+  },
+  "forgot_password": {
+    "title": "Recuperar Contraseña",
+    "subtitle": "Ingresa tu correo y te enviaremos un enlace de recuperación",
+    "email_label": "Correo electrónico",
+    "email_placeholder": "ej: usuario@healthcore.com",
+    "submit": "Enviar enlace",
+    "submitting": "Enviando...",
+    "email_required": "El correo es requerido",
+    "check_email": "Revisa tu correo",
+    "confirmation": "Si existe una cuenta con ese correo, recibirás un enlace para restablecer tu contraseña en breve.",
+    "back_to_login": "Volver a Iniciar sesión"
+  },
+  "reset_password": {
+    "title": "Establecer Nueva Contraseña",
+    "subtitle": "Ingresa tu nueva contraseña",
+    "new_password_label": "Nueva Contraseña",
+    "new_password_placeholder": "Mínimo 6 caracteres",
+    "confirm_password_label": "Confirmar Contraseña",
+    "confirm_password_placeholder": "Repite la contraseña",
+    "submit": "Restablecer Contraseña",
+    "submitting": "Restableciendo...",
+    "password_min": "La contraseña debe tener al menos 6 caracteres",
+    "password_mismatch": "Las contraseñas no coinciden",
+    "missing_token": "Falta el token de recuperación",
+    "success_title": "¡Contraseña Restablecida!",
+    "success_message": "Tu contraseña ha sido actualizada exitosamente.",
+    "redirecting": "Redirigiendo al inicio de sesión...",
+    "invalid_link": "El enlace es inválido o ha expirado",
+    "request_new": "Solicitar un nuevo enlace",
+    "back_to_login": "Volver a Iniciar sesión",
+    "loading": "Validando tu enlace...",
+    "error_prefix": "No se pudo restablecer la contraseña"
+  },
+  "change_password": {
+    "title": "Cambiar Contraseña",
+    "subtitle": "Actualiza la contraseña de tu cuenta",
+    "current_password_label": "Contraseña Actual",
+    "current_password_placeholder": "Ingresa tu contraseña actual",
+    "new_password_label": "Nueva Contraseña",
+    "new_password_placeholder": "Mínimo 6 caracteres",
+    "confirm_password_label": "Confirmar Nueva Contraseña",
+    "confirm_password_placeholder": "Repite la nueva contraseña",
+    "submit": "Cambiar Contraseña",
+    "submitting": "Actualizando...",
+    "current_required": "La contraseña actual es requerida",
+    "password_min": "La nueva contraseña debe tener al menos 6 caracteres",
+    "password_mismatch": "Las nuevas contraseñas no coinciden",
+    "success_message": "Contraseña cambiada exitosamente.",
+    "error_prefix": "No se pudo cambiar la contraseña"
   }
 }

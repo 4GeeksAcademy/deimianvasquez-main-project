@@ -480,6 +480,7 @@ dependencies = [
     { name = "libpass" },
     { name = "pyjwt" },
     { name = "python-dotenv" },
+    { name = "resend" },
     { name = "tinydb" },
 ]
 
@@ -491,6 +492,7 @@ requires-dist = [
     { name = "libpass", extras = ["bcrypt"], specifier = ">=1.9.5.post0" },
     { name = "pyjwt", specifier = ">=2.15.1" },
     { name = "python-dotenv", specifier = ">=1.0.0" },
+    { name = "resend", specifier = ">=2.55.1" },
     { name = "tinydb", specifier = ">=4.9.0" },
 ]
 
@@ -1167,6 +1169,19 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/ac/c3/e2a2b89f2d3e2179abd6d00ebd70bff6273f37fb3e0cc209f48b39d00cbf/requests-2.34.2.tar.gz", hash = "sha256:f288924cae4e29463698d6d60bc6a4da69c89185ad1e0bcc4104f584e960b9ed", size = 142856, upload-time = "2026-05-14T19:25:27.735Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/a0/f4/c67b0b3f1b9245e8d266f0f112c500d50e5b4e83cb6f3b71b6528104182a/requests-2.34.2-py3-none-any.whl", hash = "sha256:2a0d60c172f83ac6ab31e4554906c0f3b3588d37b5cb939b1c061f4907e278e0", size = 73075, upload-time = "2026-05-14T19:25:26.443Z" },
+]
+
+[[package]]
+name = "resend"
+version = "2.55.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "requests" },
+    { name = "typing-extensions" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/8e/e5/ea9af4b55e1ba80d8e6f586e388dfad511ce8fac928315abb78e4fbbca75/resend-2.55.1.tar.gz", hash = "sha256:cb187523ae15085690ddd8dbe9bb8945600edecfb466c7bbf6a81b60b09cfa7c", size = 88477, upload-time = "2026-11-25T14:55:19.78Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/04/23/2078f5db01031ac4652c51b1514704acf89d2245112786cb4a35e81a5f20/resend-2.55.1-py3-none-any.whl", hash = "sha256:1fe0f2010be1e1ba5fa6c85e8ac024bc83d3a573aa9d946ffe86de42701a67f7", size = 129251, upload-time = "2026-11-25T14:55:18.214Z" },
 ]
 
 [[package]]

@@ -19,6 +19,9 @@ env/
 .env.local
 .env.*.local
 
+# TinyDB database (dev data)
+data/db.json
+
 # IDE
 .vscode/
 .idea/

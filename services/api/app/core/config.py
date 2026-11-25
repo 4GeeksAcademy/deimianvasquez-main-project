@@ -35,6 +35,16 @@ JWT_ALGORITHM: str = "HS256"
 # ── Cookie ─────────────────────────────────────────────────────────
 COOKIE_NAME: str = "access_token"
 
+# ── Password Reset ─────────────────────────────────────────────────
+RESEND_API_KEY: str = os.getenv("RESEND_API_KEY", "")
+PASSWORD_RESET_TOKEN_EXPIRE_MINUTES: int = int(
+    os.getenv("PASSWORD_RESET_TOKEN_EXPIRE_MINUTES", "15")
+)
+PASSWORD_RESET_TOKEN_SECRET_KEY: str = os.getenv(
+    "PASSWORD_RESET_TOKEN_SECRET_KEY", SECRET_KEY
+)
+FRONTEND_URL: str = os.getenv("FRONTEND_URL", "http://localhost:3000")
+
 
 def validate_config() -> None:
     """
@@ -51,3 +61,9 @@ def validate_config() -> None:
 
     if ACCESS_TOKEN_EXPIRE_MINUTES < 1:
         raise ValueError("ACCESS_TOKEN_EXPIRE_MINUTES must be >= 1")
+
+    if not RESEND_API_KEY:
+        warnings.warn(
+            "RESEND_API_KEY is not set. Password reset emails will not be sent. "
+            "Set RESEND_API_KEY in .env to enable email delivery."
+        )

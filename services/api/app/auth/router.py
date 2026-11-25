@@ -4,14 +4,31 @@ HealthCore — Auth Router
 Authentication endpoints.
 
 Routes:
-- ``POST /auth/login``  — Authenticate and receive a JWT.
-- ``GET /auth/me``      — Get current user's email, role, and profile.
+- ``POST /auth/login``              — Authenticate and receive a JWT.
+- ``GET /auth/me``                  — Get current user's email, role, and profile.
+- ``POST /auth/forgot-password``    — Request a password reset email.
+- ``POST /auth/reset-password``     — Reset password with a token.
+- ``POST /auth/change-password``    — Change password (authenticated).
 """
 
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 
 from app.auth.deps import get_current_user
-from app.auth.schemas import AuthMeResponse, LoginRequest, ProfilePublic, TokenResponse
+from app.auth.schemas import (
+    AuthMeResponse,
+    ChangePasswordRequest,
+    ForgotPasswordRequest,
+    LoginRequest,
+    MessageResponse,
+    ProfilePublic,
+    ResetPasswordRequest,
+    TokenResponse,
+)
+from app.auth.service import (
+    change_user_password,
+    complete_password_reset,
+    request_password_reset,
+)
 from app.core.security import (
     build_set_cookie_header,
     create_access_token,
@@ -94,3 +111,68 @@ def auth_me(current_user: UserCreate = Depends(get_current_user)):
         role=current_user.role,
         profile=profile_public,
     )
+
+
+# ── Password Reset ─────────────────────────────────────────────────
+
+
+@router.post("/forgot-password", response_model=MessageResponse)
+def forgot_password(payload: ForgotPasswordRequest):
+    """
+    Request a password reset email.
+
+    Always returns ``200`` with a generic success message to prevent
+    user enumeration. If the email is registered, a reset link is sent.
+
+    **Security notes:**
+    - Always returns the same response regardless of whether the email exists.
+    - The reset token expires in 15 minutes (configurable).
+    - The token can only be used once.
+    """
+    request_password_reset(payload.email)
+
+    return MessageResponse(
+        message="If that email address is registered, you will receive a password reset link shortly."
+    )
+
+
+@router.post("/reset-password", response_model=MessageResponse)
+def reset_password(payload: ResetPasswordRequest):
+    """
+    Reset the password using a valid reset token.
+
+    The token must:
+    - Have a valid JWT signature.
+    - Not be expired.
+    - Not have been used already.
+
+    On success, the token is invalidated and cannot be reused.
+    """
+    try:
+        complete_password_reset(payload.token, payload.new_password)
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+
+    return MessageResponse(
+        message="Your password has been reset successfully. You can now log in with your new password."
+    )
+
+
+@router.post("/change-password", response_model=MessageResponse)
+def change_password(
+    payload: ChangePasswordRequest,
+    current_user: UserCreate = Depends(get_current_user),
+):
+    """
+    Change the password for the currently authenticated user.
+
+    Requires a valid session token (cookie or Authorization header).
+
+    Returns ``400`` if the current password is incorrect.
+    """
+    try:
+        change_user_password(current_user.id, payload.current_password, payload.new_password)
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+
+    return MessageResponse(message="Your password has been changed successfully.")
