@@ -1,8 +1,7 @@
 """
 HealthCore — Incident Analyzer (shared logic)
 =============================================
-Single source of truth for CSV validation and metric computation.
-Used by scripts/analyze.py (CLI) and services/api/ (FastAPI).
+CSV validation and metric computation for HealthCore incidents.
 
 Compliant with HIPAA & UK GDPR: NEVER exposes patient_id values.
 """
@@ -12,48 +11,14 @@ import io
 from collections import Counter
 from typing import Any
 
-# ── Valid clinic codes with their country ──
-VALID_CLINICS: dict[str, str] = {
-    "US-TX-01": "US",
-    "US-TX-02": "US",
-    "US-TX-03": "US",
-    "US-FL-01": "US",
-    "US-FL-02": "US",
-    "US-FL-03": "US",
-    "US-GA-01": "US",
-    "US-GA-02": "US",
-    "US-GA-03": "US",
-    "UK-LON-01": "UK",
-    "UK-LON-02": "UK",
-    "UK-MAN-01": "UK",
-}
-
-# ── Valid categories ──
-VALID_CATEGORIES: set[str] = {
-    "APPOINTMENT", "BILLING", "CLINICAL_CARE", "ACCESSIBILITY", "ADMINISTRATIVE",
-}
-
-# ── Valid statuses ──
-VALID_STATUSES: set[str] = {"OPEN", "CLOSED", "DISCARDED"}
-
-RULE_LABELS: dict[str, str] = {
-    "invalid_clinic_id": "Invalid or missing clinic_id",
-    "country_clinic_mismatch": "Country/clinic mismatch",
-    "invalid_category": "Invalid or missing category",
-    "empty_description": "Empty description",
-    "missing_patient_id": "Missing patient_id",
-    "closed_no_score": "Closed case, no score",
-    "invalid_satisfaction_score": "Invalid satisfaction score",
-    "invalid_status": "Invalid status",
-}
-
-SCORE_LABELS: dict[int, str] = {
-    1: "Very dissatisfied",
-    2: "Dissatisfied",
-    3: "Neutral",
-    4: "Satisfied",
-    5: "Very satisfied",
-}
+# ── Shared constants (single source of truth) ──
+from healthcore.constants import (
+    RULE_LABELS,
+    SCORE_LABELS,
+    VALID_CATEGORIES,
+    VALID_CLINICS,
+    VALID_STATUSES,
+)
 
 
 # ──────────────────────────────────────────────
