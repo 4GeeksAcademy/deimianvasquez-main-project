@@ -1,20 +1,41 @@
 """
 HealthCore — Incidents Service
 ================================
-Business logic layer for incident CSV analysis.
+Business logic layer for incident CSV analysis (v1) and incident management (v2).
 
 Sits between the router (HTTP layer) and the repository (data access).
-Handles CSV validation, delegates analysis to the shared analyzer,
-and orchestrates storage of results.
 """
+
+from typing import Optional
 
 from healthcore.analyzer import AnalysisResult, analyze_csv_content
 
-from app.incidents.repository import IncidentRepository
-from app.incidents.schemas import AnalysisResponse
+from app.incidents.constants import VALID_TRANSITIONS
+from app.incidents.repository import (
+    IncidentRepository,
+    count_incidents_by_field,
+    get_all_incidents,
+    get_incident_by_id,
+    incident_exists_by_title_and_date,
+    insert_incident,
+    update_incident_status,
+)
+from app.incidents.schemas import (
+    AnalysisResponse,
+    IncidentCreate,
+    IncidentListResponse,
+    IncidentResponse,
+    IncidentStatusUpdate,
+    IncidentSummary,
+)
 
-# ── Repository instance (in-memory for now) ──
+# ── Repository instance (in-memory for analysis results) ──
 _repo = IncidentRepository()
+
+
+# ═══════════════════════════════════════════════
+#  CSV Analysis Service (v1 — existing)
+# ═══════════════════════════════════════════════
 
 
 def validate_csv_content(content: str) -> None:
@@ -77,3 +98,105 @@ def export_last_result_as_csv() -> str:
 def _result_to_response(result: AnalysisResult) -> AnalysisResponse:
     """Convert an AnalysisResult into an AnalysisResponse Pydantic model."""
     return AnalysisResponse(**result.to_dict())
+
+
+# ═══════════════════════════════════════════════
+#  Incident Manager Service (v2)
+# ═══════════════════════════════════════════════
+
+
+def _doc_to_response(doc: dict) -> IncidentResponse:
+    """Convert a TinyDB document into an IncidentResponse."""
+    return IncidentResponse(
+        id=doc["incident_id"],
+        title=doc["title"],
+        description=doc["description"],
+        category=doc["category"],
+        status=doc["status"],
+        origin=doc["origin"],
+        branch=doc["branch"],
+        created_at=doc["created_at"],
+        updated_at=doc["updated_at"],
+    )
+
+
+def create_incident(payload: IncidentCreate) -> IncidentResponse:
+    """Create a new incident from validated data. Always starts as 'open'."""
+    doc_id = insert_incident(
+        title=payload.title,
+        description=payload.description,
+        category=payload.category,
+        status="open",
+        origin=payload.origin,
+        branch=payload.branch,
+    )
+    doc = get_incident_by_id(doc_id)
+    assert doc is not None
+    return _doc_to_response(doc)
+
+
+def list_incidents(
+    status: str | None = None,
+    origin: str | None = None,
+    branch: str | None = None,
+    category: str | None = None,
+    search: str | None = None,
+    date_from: str | None = None,
+    date_to: str | None = None,
+) -> IncidentListResponse:
+    """List incidents with optional filters. Returns empty list if none match."""
+    docs = get_all_incidents(
+        status=status,
+        origin=origin,
+        branch=branch,
+        category=category,
+        search=search,
+        date_from=date_from,
+        date_to=date_to,
+    )
+    items = [_doc_to_response(d) for d in docs]
+    return IncidentListResponse(items=items, total=len(items))
+
+
+def get_incident(incident_id: str) -> Optional[IncidentResponse]:
+    """Get a single incident by ID. Returns None if not found."""
+    doc = get_incident_by_id(incident_id)
+    if doc is None:
+        return None
+    return _doc_to_response(doc)
+
+
+def change_incident_status(incident_id: str, payload: IncidentStatusUpdate) -> IncidentResponse:
+    """
+    Update the status of an incident, validating the lifecycle transition.
+
+    Raises:
+        ValueError: If transition is invalid or incident not found.
+    """
+    doc = get_incident_by_id(incident_id)
+    if doc is None:
+        raise ValueError("Incident not found")
+
+    current = doc["status"]
+    new_status = payload.status
+
+    allowed = VALID_TRANSITIONS.get(current, set())
+    if new_status not in allowed:
+        raise ValueError(
+            f"Invalid status transition: from '{current}' to '{new_status}'. "
+            f"Allowed transitions from '{current}': {', '.join(sorted(allowed)) or '(none — terminal state)'}."
+        )
+
+    updated = update_incident_status(incident_id, new_status)
+    assert updated is not None
+    return _doc_to_response(updated)
+
+
+def get_incident_summary() -> IncidentSummary:
+    """Compute aggregated metrics across all incidents."""
+    return IncidentSummary(
+        by_status=count_incidents_by_field("status"),
+        by_category=count_incidents_by_field("category"),
+        by_origin=count_incidents_by_field("origin"),
+        by_branch=count_incidents_by_field("branch"),
+    )

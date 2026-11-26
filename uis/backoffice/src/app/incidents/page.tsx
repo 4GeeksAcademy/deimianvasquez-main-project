@@ -4,13 +4,19 @@ import { useState, useCallback } from "react";
 import { useTranslations } from "next-intl";
 import FileUpload from "./components/FileUpload";
 import ResultsPanel from "./components/ResultsPanel";
+import IncidentForm from "./components/IncidentForm";
+import IncidentList from "./components/IncidentList";
+import IncidentSummaryPanel from "./components/IncidentSummaryPanel";
 import type { AnalysisResult } from "./types";
 import { fetchWithAuth, API_BASE } from "@/services/api";
 import { requireAuth } from "@/services/auth-guard";
 
+type Tab = "analyze" | "register" | "list" | "summary";
+
 export default function IncidentsPage() {
   const t = useTranslations("incidents");
   requireAuth();
+  const [activeTab, setActiveTab] = useState<Tab>("analyze");
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -68,6 +74,17 @@ export default function IncidentsPage() {
     }
   }, [t]);
 
+  const handleIncidentCreated = useCallback(() => {
+    setActiveTab("list");
+  }, []);
+
+  const TABS: { key: Tab; label: string }[] = [
+    { key: "analyze", label: t("tab_analyze") },
+    { key: "register", label: t("tab_register") },
+    { key: "list", label: t("tab_list") },
+    { key: "summary", label: t("tab_summary") },
+  ];
+
   return (
     <div className="flex-1 flex flex-col">
       {/* Page Header */}
@@ -81,44 +98,82 @@ export default function IncidentsPage() {
               {t("subtitle")}
             </p>
           </div>
+          {/* Tabs */}
+          <div className="flex gap-1 mt-4 border-b border-border">
+            {TABS.map((tab) => (
+              <button
+                key={tab.key}
+                onClick={() => {
+                  setActiveTab(tab.key);
+                  setError(null);
+                }}
+                className={`px-4 py-2 text-sm font-medium rounded-t-lg transition-colors ${
+                  activeTab === tab.key
+                    ? "bg-surface border border-border border-b-transparent text-primary-700"
+                    : "text-text-secondary hover:text-text-primary"
+                }`}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* File Upload Section */}
-        <section className="mb-8">
-          <FileUpload onFileUpload={handleFileUpload} loading={loading} />
-        </section>
+        {/* Tab: Analyze */}
+        {activeTab === "analyze" && (
+          <>
+            {/* File Upload Section */}
+            <section className="mb-8">
+              <FileUpload onFileUpload={handleFileUpload} loading={loading} />
+            </section>
 
-        {/* Error Display */}
-        {error && (
-          <div className="mb-8 p-4 bg-error/10 border border-error/30 rounded-xl">
-            <div className="flex items-start gap-3">
-              <svg
-                className="w-5 h-5 text-error mt-0.5 shrink-0"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
-              </svg>
-              <div>
-                <h3 className="font-medium text-error">{t("error_prefix")}</h3>
-                <p className="text-sm text-error mt-1">{error}</p>
+            {/* Error Display */}
+            {error && (
+              <div className="mb-8 p-4 bg-error/10 border border-error/30 rounded-xl">
+                <div className="flex items-start gap-3">
+                  <svg
+                    className="w-5 h-5 text-error mt-0.5 shrink-0"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
+                  </svg>
+                  <div>
+                    <h3 className="font-medium text-error">{t("error_prefix")}</h3>
+                    <p className="text-sm text-error mt-1">{error}</p>
+                  </div>
+                </div>
               </div>
-            </div>
-          </div>
+            )}
+
+            {/* Results Panel */}
+            {result && (
+              <ResultsPanel result={result} onExport={handleExport} />
+            )}
+          </>
         )}
 
-        {/* Results Panel */}
-        {result && (
-          <ResultsPanel result={result} onExport={handleExport} />
+        {/* Tab: Register */}
+        {activeTab === "register" && (
+          <IncidentForm
+            onCreated={handleIncidentCreated}
+            onCancel={() => setActiveTab("list")}
+          />
         )}
+
+        {/* Tab: List */}
+        {activeTab === "list" && <IncidentList />}
+
+        {/* Tab: Summary */}
+        {activeTab === "summary" && <IncidentSummaryPanel />}
       </main>
     </div>
   );
