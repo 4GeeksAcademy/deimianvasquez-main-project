@@ -72,19 +72,32 @@ export default function IncidentForm({ onCreated, onCancel }: Props) {
       });
 
       if (!res.ok) {
-        const data = await res.json();
-        const detail = data.detail;
-        if (Array.isArray(detail)) {
-          setError(detail.map((d: { msg: string }) => d.msg).join(", "));
+        if (res.status === 400 || res.status === 422) {
+          const data = await res.json().catch(() => null);
+          const fieldLabels: Record<string, string> = {
+            "body.title": t("form_title_label"),
+            "body.description": t("form_description_label"),
+            "body.category": t("form_category_label"),
+            "body.origin": t("form_origin_label"),
+            "body.branch": t("form_branch_label"),
+          };
+          const fields: string[] = Array.isArray(data?.detail)
+            ? data.detail
+                .map((item: { field?: unknown } | null) =>
+                  typeof item?.field === "string" ? fieldLabels[item.field] : undefined,
+                )
+                .filter((field: string | undefined): field is string => Boolean(field))
+            : [];
+          setError(fields.length ? t("error_invalid_fields", { fields: [...new Set(fields)].join(", ") }) : t("error_invalid_input"));
         } else {
-          setError(detail || t("error_create"));
+          setError(t("error_create_uncertain"));
         }
         return;
       }
 
       onCreated();
     } catch {
-      setError(t("error_connection"));
+      setError(t("error_create_uncertain"));
     } finally {
       setSaving(false);
     }
@@ -97,7 +110,7 @@ export default function IncidentForm({ onCreated, onCancel }: Props) {
       </h2>
 
       {error && (
-        <div className="mb-4 p-3 bg-error/10 border border-error/30 rounded-lg text-sm text-error">
+        <div role="alert" className="mb-4 p-3 bg-error/10 border border-error/30 rounded-lg text-sm text-error">
           {error}
         </div>
       )}
@@ -212,6 +225,7 @@ export default function IncidentForm({ onCreated, onCancel }: Props) {
           <button
             type="button"
             onClick={onCancel}
+            disabled={saving}
             className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-border bg-surface text-sm text-text-secondary hover:bg-surface-muted transition-colors"
           >
             {t("form_cancel")}

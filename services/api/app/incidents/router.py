@@ -9,6 +9,7 @@ All endpoints are protected — a valid JWT is required.
 
 from fastapi import APIRouter, Depends, File, HTTPException, Query, UploadFile
 from fastapi.responses import StreamingResponse
+from healthcore.analyzer import CSVValidationError
 
 from app.auth.deps import get_current_user
 from app.incidents.schemas import (
@@ -21,6 +22,9 @@ from app.incidents.schemas import (
     ValidationErrorDetail,
 )
 from app.incidents.service import (
+    IncidentNotFoundError,
+    IncidentValidationError,
+    NoAnalysisResultError,
     change_incident_status,
     create_incident,
     export_last_result_as_csv,
@@ -76,12 +80,12 @@ async def analyze_incidents(
 
     try:
         result = process_csv_analysis(content)
-    except ValueError as e:
+    except CSVValidationError as e:
         raise HTTPException(status_code=400, detail=str(e))
-    except Exception as e:
+    except Exception:
         raise HTTPException(
             status_code=500,
-            detail=f"Error processing CSV: {str(e)}",
+            detail="An error occurred while processing the CSV. Please try again later.",
         )
 
     return result
@@ -99,7 +103,7 @@ async def export_results(
     """
     try:
         csv_content = export_last_result_as_csv()
-    except ValueError as e:
+    except NoAnalysisResultError as e:
         raise HTTPException(status_code=404, detail=str(e))
 
     return StreamingResponse(
@@ -127,7 +131,7 @@ def create(
     """
     try:
         return create_incident(payload)
-    except ValueError as e:
+    except IncidentValidationError as e:
         raise HTTPException(
             status_code=400,
             detail=[ValidationErrorDetail(field="body", message=str(e)).model_dump()],
@@ -187,7 +191,7 @@ def get_one(
     """
     incident = get_incident(incident_id)
     if incident is None:
-        raise HTTPException(status_code=404, detail=f"Incident '{incident_id}' not found.")
+        raise HTTPException(status_code=404, detail="Incident not found.")
     return incident
 
 
@@ -209,8 +213,7 @@ def update_status_endpoint(
     """
     try:
         return change_incident_status(incident_id, payload)
-    except ValueError as e:
-        msg = str(e)
-        if "not found" in msg.lower():
-            raise HTTPException(status_code=404, detail=f"Incident '{incident_id}' not found.")
-        raise HTTPException(status_code=400, detail=msg)
+    except IncidentNotFoundError:
+        raise HTTPException(status_code=404, detail="Incident not found.")
+    except IncidentValidationError as e:
+        raise HTTPException(status_code=400, detail=str(e))

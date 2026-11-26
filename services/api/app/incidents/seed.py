@@ -61,16 +61,43 @@ def read_csv_rows(csv_path: str) -> list[dict]:
     """Read the CSV file and return a list of dicts."""
     path = _resolve_csv_path(csv_path)
     if not os.path.isfile(path):
-        print(f"✗ CSV file not found: {path}")
+        print("Error: CSV file not found or not a regular file.", file=sys.stderr)
         sys.exit(1)
 
-    with open(path, newline="", encoding="utf-8") as f:
-        reader = csv.DictReader(f)
-        rows = list(reader)
+    try:
+        with open(path, newline="", encoding="utf-8") as f:
+            reader = csv.DictReader(f, strict=True)
+            headers = reader.fieldnames or []
+            required = {"clinic_id", "category", "description", "status"}
+            missing = required - set(headers)
+            if missing:
+                print(f"Error: Missing required CSV columns: {', '.join(sorted(missing))}.", file=sys.stderr)
+                sys.exit(1)
+            if any(not header for header in headers) or len(set(headers)) != len(headers):
+                print("Error: CSV headers must be nonempty and unique.", file=sys.stderr)
+                sys.exit(1)
+            rows = []
+            for row in reader:
+                if None in row or any(value is None for value in row.values()):
+                    print(f"Error: CSV row {reader.line_num} has an incorrect number of fields.", file=sys.stderr)
+                    sys.exit(1)
+                rows.append(row)
+            if not rows:
+                print("Error: CSV file has no data rows.", file=sys.stderr)
+                sys.exit(1)
+    except UnicodeDecodeError:
+        print("Error: CSV file must be encoded in UTF-8.", file=sys.stderr)
+        sys.exit(1)
+    except OSError:
+        print("Error: Unable to read the CSV file. Check its availability and permissions.", file=sys.stderr)
+        sys.exit(1)
+    except csv.Error:
+        print("Error: Unable to parse the CSV file. Check its format.", file=sys.stderr)
+        sys.exit(1)
 
-    print(f"  Source: {path}")
+    print("  CSV file loaded.")
     print(f"  Total rows read: {len(rows)}")
-    print(f"  Columns detected: {reader.fieldnames}")
+    print(f"  Total columns detected: {len(headers)}")
     return rows
 
 
@@ -109,7 +136,7 @@ def process_row(row: dict, row_index: int) -> dict | None:
     else:
         branch = CLINIC_ID_TO_BRANCH.get(clinic_id)
         if branch is None:
-            errors.append(f"unknown clinic_id '{clinic_id}'")
+            errors.append("unknown clinic_id")
             branch = None
 
     # ── category → model category ───────────────────────────
@@ -120,7 +147,7 @@ def process_row(row: dict, row_index: int) -> dict | None:
     else:
         category = CSV_CATEGORY_MAP.get(csv_category)
         if category is None:
-            errors.append(f"unknown category '{csv_category}'")
+            errors.append("unknown category")
             category = None
 
     # ── status → model status ───────────────────────────────
@@ -131,7 +158,7 @@ def process_row(row: dict, row_index: int) -> dict | None:
     else:
         status = CSV_STATUS_MAP.get(csv_status)
         if status is None:
-            errors.append(f"unknown status '{csv_status}'")
+            errors.append("unknown status")
             status = None
 
     # ── description → title ─────────────────────────────────

@@ -34,10 +34,8 @@ export default function LoginPage() {
           ? new URLSearchParams(window.location.search).get("redirect") || "/"
           : "/";
       window.location.href = redirectTo;
-    } catch (err) {
-      setError(
-        err instanceof Error ? err.message : t("error_prefix")
-      );
+    } catch {
+      setError(t("error_sign_in"));
     } finally {
       setLoading(false);
     }
@@ -71,7 +69,7 @@ export default function LoginPage() {
         >
           {/* Error */}
           {error && (
-            <div className="mb-4 p-3 bg-error/10 border border-error/30 rounded-lg">
+            <div role="alert" className="mb-4 p-3 bg-error/10 border border-error/30 rounded-lg">
               <p className="text-sm text-error font-medium">{error}</p>
             </div>
           )}

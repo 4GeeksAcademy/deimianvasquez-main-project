@@ -143,16 +143,36 @@ class AnalysisResult:
 # ──────────────────────────────────────────────
 
 
+class CSVValidationError(ValueError):
+    pass
+
+
 def read_csv_content(content: str) -> list[dict[str, str]]:
     """Parse CSV string content into list of normalised dicts (lowercase keys)."""
-    reader = csv.DictReader(io.StringIO(content))
+    reader = csv.DictReader(io.StringIO(content), strict=True)
     rows: list[dict[str, str]] = []
-    for row in reader:
-        normalised: dict[str, str] = {}
-        for raw_key, value in row.items():
-            key = raw_key.strip().lower() if raw_key else ""
-            normalised[key] = value.strip() if value else ""
-        rows.append(normalised)
+    try:
+        headers = [header.strip().lower() for header in reader.fieldnames or []]
+        required = {"clinic_id", "country", "category", "description", "patient_id", "status"}
+        missing = required - set(headers)
+        if missing:
+            raise CSVValidationError(f"Missing required CSV columns: {', '.join(sorted(missing))}.")
+        if any(not header for header in headers) or len(set(headers)) != len(headers):
+            raise CSVValidationError("CSV headers must be nonempty and unique.")
+        for row in reader:
+            if None in row:
+                raise CSVValidationError(f"CSV row {reader.line_num} has more fields than the header.")
+            if any(value is None for value in row.values()):
+                raise CSVValidationError(f"CSV row {reader.line_num} has fewer fields than the header.")
+            normalised: dict[str, str] = {}
+            for raw_key, value in row.items():
+                key = raw_key.strip().lower() if raw_key else ""
+                normalised[key] = value.strip() if value else ""
+            rows.append(normalised)
+    except csv.Error:
+        raise CSVValidationError("Invalid CSV format. Check the file and try again.") from None
+    if not rows:
+        raise CSVValidationError("CSV file has no data rows.")
     return rows
 
 

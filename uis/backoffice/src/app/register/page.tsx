@@ -14,9 +14,11 @@ export default function RegisterPage() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [accountCreated, setAccountCreated] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (accountCreated) return;
     setError(null);
 
     if (!name.trim()) {
@@ -37,14 +39,15 @@ export default function RegisterPage() {
     }
 
     setLoading(true);
+    let created = false;
     try {
       await register(email.trim(), password, name.trim());
+      created = true;
+      setAccountCreated(true);
       await login(email.trim(), password);
       window.location.href = "/";
-    } catch (err) {
-      setError(
-        err instanceof Error ? err.message : t("error_prefix")
-      );
+    } catch {
+      setError(created ? t("account_created_sign_in") : t("error_register"));
     } finally {
       setLoading(false);
     }
@@ -78,7 +81,7 @@ export default function RegisterPage() {
         >
           {/* Error */}
           {error && (
-            <div className="mb-4 p-3 bg-error/10 border border-error/30 rounded-lg">
+            <div role="alert" className="mb-4 p-3 bg-error/10 border border-error/30 rounded-lg">
               <p className="text-sm text-error font-medium">{error}</p>
             </div>
           )}
@@ -166,7 +169,7 @@ export default function RegisterPage() {
           {/* Submit */}
           <button
             type="submit"
-            disabled={loading}
+            disabled={loading || accountCreated}
             className="w-full py-2.5 rounded-lg bg-primary-700 text-white text-sm font-semibold hover:bg-primary-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? t("submitting") : t("submit")}

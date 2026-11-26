@@ -18,6 +18,8 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 from app.auth.deps import get_current_user
 from app.users.schemas import UserCreate, UserResponse, UserUpdate
 from app.users.service import (
+    UserAuthorizationError,
+    UserConflictError,
     create_user,
     delete_user_by_id,
     get_user_by_id,
@@ -58,7 +60,7 @@ def register_user(payload: UserCreate):
     """
     try:
         user = create_user(payload)
-    except ValueError as e:
+    except UserConflictError as e:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
 
     return user
@@ -119,9 +121,9 @@ def update_user_by_id(
             current_user_id=current_user.id,
             current_user_role=current_user.role,
         )
-    except PermissionError as e:
+    except UserAuthorizationError as e:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=str(e))
-    except ValueError as e:
+    except UserConflictError as e:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
 
     if updated is None:
@@ -149,7 +151,7 @@ def delete_user_by_id_endpoint(
             current_user_id=current_user.id,
             current_user_role=current_user.role,
         )
-    except PermissionError as e:
+    except UserAuthorizationError as e:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=str(e))
 
     if not deleted:

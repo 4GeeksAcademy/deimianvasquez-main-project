@@ -6,6 +6,8 @@ FastAPI application entry point.
 Registers routers, middleware, and global exception handlers.
 """
 
+import logging
+
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
@@ -16,6 +18,8 @@ from app.incidents.router import router as incidents_router
 from app.profiles.router import router as profiles_router
 from app.suppliers.router import router as suppliers_router
 from app.users.router import router as users_router
+
+logger = logging.getLogger(__name__)
 
 app = FastAPI(
     title="HealthCore — Incident Report Analysis API",
@@ -53,6 +57,13 @@ async def validation_exception_handler(
     Returns ``400`` with field-level error detail, consistent with
     the ``ValidationErrorDetail`` format used by the incidents module.
     """
+    messages = {
+        "missing": "This field is required.",
+        "string_too_short": "The value is too short.",
+        "string_too_long": "The value is too long.",
+        "greater_than": "The value is too small.",
+        "greater_than_equal": "The value is too small.",
+    }
     errors = []
     for error in exc.errors():
         # Build the field path (e.g. "body.title" or "body")
@@ -60,7 +71,7 @@ async def validation_exception_handler(
         field = ".".join(loc_parts) if loc_parts else "unknown"
         errors.append({
             "field": field,
-            "message": error.get("msg", "Validation error"),
+            "message": messages.get(error.get("type"), "Invalid value."),
         })
 
     return JSONResponse(
@@ -80,8 +91,7 @@ async def global_exception_handler(
     Never returns stack traces or internal details.
     Returns ``500`` with a generic message and logs the error server-side.
     """
-    # Log the error for debugging (visible in server logs)
-    print(f"[500] Unhandled error at {request.method} {request.url.path}: {exc}")
+    logger.error("Unhandled server error")
 
     return JSONResponse(
         status_code=500,

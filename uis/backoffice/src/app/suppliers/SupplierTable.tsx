@@ -15,48 +15,57 @@ export default function SupplierTable({ suppliers, onUpdate }: Props) {
   const t = useTranslations("suppliers");
   const [editingRate, setEditingRate] = useState<number | null>(null);
   const [newRate, setNewRate] = useState("");
+  const [updating, setUpdating] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [canRefresh, setCanRefresh] = useState(false);
 
   const handleStatusToggle = async (supplier: Supplier) => {
+    if (updating) return;
     const newStatus = supplier.status === "active" ? "suspended" : "active";
+    setError(null);
+    setCanRefresh(false);
+    setUpdating(true);
     try {
       const res = await fetchWithAuth(`${API_BASE}/suppliers/${supplier.id}/status`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status: newStatus }),
       });
-      if (!res.ok) {
-        const data = await res.json();
-        alert(`Error: ${data.detail || t("error_status")}`);
-        return;
-      }
+      if (!res.ok) throw new Error(t("error_status"));
       onUpdate();
     } catch {
-      alert(t("error_connection"));
+      setError(t("error_status"));
+      setCanRefresh(true);
+    } finally {
+      setUpdating(false);
     }
   };
 
   const handleRateUpdate = async (id: number) => {
+    if (updating) return;
+    setError(null);
+    setCanRefresh(false);
     const rate = parseFloat(newRate);
     if (isNaN(rate) || rate <= 0) {
-      alert(t("rate_error"));
+      setError(t("rate_error"));
       return;
     }
+    setUpdating(true);
     try {
       const res = await fetchWithAuth(`${API_BASE}/suppliers/${id}/rate`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ monthly_rate: rate }),
       });
-      if (!res.ok) {
-        const data = await res.json();
-        alert(`Error: ${data.detail || t("error_rate")}`);
-        return;
-      }
+      if (!res.ok) throw new Error(t("error_rate"));
       setEditingRate(null);
       setNewRate("");
       onUpdate();
     } catch {
-      alert(t("error_connection"));
+      setError(t("error_rate"));
+      setCanRefresh(true);
+    } finally {
+      setUpdating(false);
     }
   };
 
@@ -66,7 +75,23 @@ export default function SupplierTable({ suppliers, onUpdate }: Props) {
   };
 
   return (
-    <div className="overflow-x-auto rounded-xl border border-border bg-surface shadow-sm">
+    <div>
+      {updating && <p role="status" className="mb-3 text-sm text-text-secondary">{t("updating")}</p>}
+      {error && (
+        <div role="alert" className="mb-4 p-3 bg-error/10 border border-error/30 rounded-lg text-sm text-error">
+          <p>{error}</p>
+          {canRefresh && (
+            <button
+              type="button"
+              onClick={onUpdate}
+              className="mt-2 min-h-11 px-3 text-primary-700 hover:text-primary-800 font-medium border border-primary-700 rounded-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-700"
+            >
+              {t("retry")}
+            </button>
+          )}
+        </div>
+      )}
+      <div className="overflow-x-auto rounded-xl border border-border bg-surface shadow-sm">
       <table className="w-full text-sm">
         <thead>
           <tr className="bg-surface-muted border-b border-border">
@@ -120,6 +145,7 @@ export default function SupplierTable({ suppliers, onUpdate }: Props) {
                   <div className="flex items-center justify-end gap-2">
                     <input
                       type="number"
+                      disabled={updating}
                       step="0.01"
                       min="0.01"
                       value={newRate}
@@ -136,6 +162,7 @@ export default function SupplierTable({ suppliers, onUpdate }: Props) {
                     />
                     <button
                       onClick={() => handleRateUpdate(supplier.id)}
+                      disabled={updating}
                       className="text-xs px-2 py-1 rounded bg-primary-700 text-white hover:bg-primary-800 transition-colors"
                     >
                       ✓
@@ -145,6 +172,7 @@ export default function SupplierTable({ suppliers, onUpdate }: Props) {
                         setEditingRate(null);
                         setNewRate("");
                       }}
+                      disabled={updating}
                       className="text-xs px-2 py-1 rounded border border-border text-text-secondary hover:bg-surface-muted transition-colors"
                     >
                       ✗
@@ -156,6 +184,7 @@ export default function SupplierTable({ suppliers, onUpdate }: Props) {
                       setEditingRate(supplier.id);
                       setNewRate(supplier.monthly_rate.toString());
                     }}
+                    disabled={updating}
                     className="hover:text-primary-700 transition-colors cursor-pointer"
                     title="Editar tarifa"
                   >
@@ -196,6 +225,7 @@ export default function SupplierTable({ suppliers, onUpdate }: Props) {
               <td className="px-4 py-3 text-center">
                 <button
                   onClick={() => handleStatusToggle(supplier)}
+                  disabled={updating}
                   className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
                     supplier.status === "active"
                       ? "bg-red-50 text-error hover:bg-red-100 border border-red-200"
@@ -217,6 +247,7 @@ export default function SupplierTable({ suppliers, onUpdate }: Props) {
           ))}
         </tbody>
       </table>
+      </div>
     </div>
   );
 }

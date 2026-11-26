@@ -51,12 +51,12 @@ export default function SuppliersPage() {
 
       const url = `${API_BASE}/suppliers${params.toString() ? `?${params}` : ""}`;
       const res = await fetchWithAuth(url);
-      if (!res.ok) throw new Error(`Error ${res.status}`);
+      if (!res.ok) throw new Error(t("error_load"));
       const data = await res.json();
       setSuppliers(data.items);
       setTotal(data.total);
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "Error al cargar proveedores");
+    } catch {
+      setError(t("error_load"));
     } finally {
       setLoading(false);
     }
@@ -97,7 +97,7 @@ export default function SuppliersPage() {
       {/* Formulario de nuevo proveedor */}
       {showForm && (
         <div className="mb-6">
-          <SupplierForm onCreated={handleCreated} onCancel={() => setShowForm(false)} />
+          <SupplierForm onCreated={handleCreated} onCancel={() => setShowForm(false)} onRefresh={fetchSuppliers} />
         </div>
       )}
 
@@ -161,7 +161,16 @@ export default function SuppliersPage() {
       {loading ? (
         <div className="text-center py-12 text-text-secondary">{t("loading")}</div>
       ) : error ? (
-        <div className="text-center py-12 text-error">{error}</div>
+        <div role="alert" className="text-center py-12 text-error">
+          <p>{error}</p>
+          <button
+            type="button"
+            onClick={fetchSuppliers}
+            className="mt-2 min-h-11 px-3 text-primary-700 hover:text-primary-800 font-medium border border-primary-700 rounded-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-700"
+          >
+            {t("retry")}
+          </button>
+        </div>
       ) : suppliers.length === 0 ? (
         <div className="text-center py-12 text-text-secondary">
           {t("no_suppliers")}

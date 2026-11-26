@@ -25,6 +25,7 @@
     "email_required": "El correo electrónico es requerido",
     "password_required": "La contraseña es requerida",
     "error_prefix": "Error al iniciar sesión",
+    "error_sign_in": "No se pudo iniciar sesión. Revisa tus credenciales y conexión, e inténtalo de nuevo.",
     "invalid_credentials": "Credenciales inválidas",
     "forgot_password": "¿Olvidaste tu contraseña?"
   },
@@ -47,7 +48,9 @@
     "email_required": "El correo electrónico es requerido",
     "password_min": "La contraseña debe tener al menos 6 caracteres",
     "password_mismatch": "Las contraseñas no coinciden",
-    "error_prefix": "Error al registrarse"
+    "error_prefix": "Error al registrarse",
+    "error_register": "No se pudo completar o confirmar el registro. Revisa tus datos o intenta iniciar sesión antes de registrarte de nuevo.",
+    "account_created_sign_in": "Tu cuenta se creó, pero no se pudo iniciar sesión. Usa el enlace de abajo para iniciar sesión."
   },
   "home": {
     "title": "HealthCore",
@@ -82,13 +85,19 @@
     "total_closed": "Total Cerrados",
     "average": "Promedio",
     "export_csv": "Descargar resultados en CSV",
+    "exporting": "Preparando descarga...",
+    "retry_action": "Intentar de nuevo",
     "error_prefix": "Error del servidor",
-    "error_unknown": "Error desconocido al procesar el archivo",
+    "error_unknown": "No se pudo analizar el archivo. Comprueba que sea un CSV válido en UTF-8 y vuelve a intentarlo.",
     "error_export": "Error al exportar resultados",
     "error_download": "Error al descargar el CSV",
     "error_create": "Error al crear el incidente",
+    "error_invalid_fields": "Revisa estos campos: {fields}.",
+    "error_invalid_input": "Revisa los datos del incidente e inténtalo de nuevo.",
+    "error_create_uncertain": "No se pudo confirmar la creación del incidente. Revisa la lista de incidentes antes de volver a enviarlo.",
     "error_connection": "Error de conexión con el servidor",
     "error_load_list": "Error al cargar incidentes",
+    "list_retry": "Volver a cargar la lista",
     "tab_analyze": "Analizar CSV",
     "tab_register": "Registrar Incidente",
     "tab_list": "Todos los Incidentes",
@@ -149,6 +158,7 @@
     "summary_by_branch": "Por Sucursal",
     "summary_loading": "Cargando resumen...",
     "summary_error": "Error al cargar el resumen",
+    "summary_retry": "Volver a cargar el resumen",
     "summary_empty": "Sin datos aún",
     "summary_empty_hint": "Registra algunos incidentes para ver métricas"
   },
@@ -179,10 +189,15 @@
     "no_suppliers": "No se encontraron proveedores",
     "loading": "Cargando proveedores...",
     "error_load": "Error al cargar proveedores",
+    "retry": "Volver a cargar proveedores",
     "error_create": "Error al crear el proveedor",
+    "error_invalid_fields": "Revisa estos campos: {fields}.",
+    "error_invalid_input": "Revisa los datos del proveedor e inténtalo de nuevo.",
+    "error_create_uncertain": "No se pudo confirmar la creación del proveedor. Revisa la lista de proveedores antes de volver a enviarlo.",
     "error_connection": "Error de conexión con el servidor",
     "error_status": "No se pudo cambiar el estado",
     "error_rate": "No se pudo actualizar la tarifa",
+    "updating": "Actualizando proveedor...",
     "form_title": "Registrar nuevo proveedor",
     "form_name": "Nombre del proveedor",
     "form_country": "País",
@@ -240,11 +255,13 @@
     "address_placeholder": "Ej: Calle Principal 123, Ciudad",
     "edit": "Editar perfil",
     "save": "Guardar cambios",
+    "saving": "Guardando...",
     "cancel": "Cancelar",
     "not_specified": "No especificado",
     "save_success": "Perfil actualizado correctamente.",
     "error_load": "No se pudo cargar la información del perfil.",
-    "error_update": "Error al actualizar el perfil",
+    "retry": "Volver a cargar el perfil",
+    "error_update": "No se pudo confirmar la actualización del perfil. Inténtalo de nuevo.",
     "loading": "Cargando perfil...",
     "error_title": "Error",
     "error_no_user": "No se pudo cargar la información del usuario."
@@ -258,6 +275,7 @@
     "submitting": "Enviando...",
     "email_required": "El correo es requerido",
     "check_email": "Revisa tu correo",
+    "request_failed": "No se pudo confirmar la solicitud. Comprueba tu conexión e inténtalo de nuevo.",
     "confirmation": "Si existe una cuenta con ese correo, recibirás un enlace para restablecer tu contraseña en breve.",
     "back_to_login": "Volver a Iniciar sesión"
   },
@@ -280,7 +298,8 @@
     "request_new": "Solicitar un nuevo enlace",
     "back_to_login": "Volver a Iniciar sesión",
     "loading": "Validando tu enlace...",
-    "error_prefix": "No se pudo restablecer la contraseña"
+    "error_prefix": "No se pudo restablecer la contraseña",
+    "reset_failed": "No se pudo confirmar el cambio de contraseña. Intenta iniciar sesión con la nueva contraseña o solicita otro enlace."
   },
   "change_password": {
     "title": "Cambiar Contraseña",
@@ -297,6 +316,8 @@
     "password_min": "La nueva contraseña debe tener al menos 6 caracteres",
     "password_mismatch": "Las nuevas contraseñas no coinciden",
     "success_message": "Contraseña cambiada exitosamente.",
-    "error_prefix": "No se pudo cambiar la contraseña"
+    "error_prefix": "No se pudo cambiar la contraseña",
+    "change_failed": "No se pudo confirmar el cambio. Comprueba tu contraseña actual o intenta iniciar sesión con la nueva.",
+    "recover_access": "Recuperar acceso a la cuenta"
   }
 }

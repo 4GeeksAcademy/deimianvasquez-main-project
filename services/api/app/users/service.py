@@ -37,6 +37,14 @@ from app.users.schemas import (
 )
 
 
+class UserConflictError(ValueError):
+    pass
+
+
+class UserAuthorizationError(PermissionError):
+    pass
+
+
 # ── Helpers ────────────────────────────────────────────────────────
 
 def _doc_to_response(doc: dict) -> UserResponse:
@@ -105,7 +113,7 @@ def create_user(data: UserCreate) -> UserResponse:
     """
     # Check email uniqueness
     if email_exists(data.email):
-        raise ValueError(f"Email '{data.email}' is already registered.")
+        raise UserConflictError("Email is already registered.")
 
     # Hash password
     hashed_pw = hash_password(data.password)
@@ -223,7 +231,7 @@ def update_user(user_id: int, data: UserUpdate, current_user_id: int, current_us
     """
     # Permission check
     if not can_modify_user(current_user_id, user_id, current_user_role):
-        raise PermissionError("You do not have permission to modify this user.")
+        raise UserAuthorizationError("You do not have permission to modify this user.")
 
     # Fetch existing
     existing = get_by_id(user_id)
@@ -235,7 +243,7 @@ def update_user(user_id: int, data: UserUpdate, current_user_id: int, current_us
     if data.email is not None:
         # Check email uniqueness (exclude self)
         if data.email != existing.get("email") and email_exists(data.email):
-            raise ValueError(f"Email '{data.email}' is already registered.")
+            raise UserConflictError("Email is already registered.")
         update_data["email"] = data.email
 
     if data.password is not None:
@@ -244,7 +252,7 @@ def update_user(user_id: int, data: UserUpdate, current_user_id: int, current_us
     if data.role is not None:
         # Only admin can change role
         if current_user_role != UserRole.ADMIN:
-            raise PermissionError("Only admins can change a user's role.")
+            raise UserAuthorizationError("Only admins can change a user's role.")
         update_data["role"] = data.role.value
 
     if data.is_active is not None:
@@ -280,7 +288,7 @@ def delete_user_by_id(user_id: int, current_user_id: int, current_user_role: Use
         PermissionError: If the current user is not allowed.
     """
     if not can_modify_user(current_user_id, user_id, current_user_role):
-        raise PermissionError("You do not have permission to delete this user.")
+        raise UserAuthorizationError("You do not have permission to delete this user.")
 
     # Delete profile first
     delete_profile_by_user_id(user_id)

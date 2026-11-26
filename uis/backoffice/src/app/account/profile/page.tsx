@@ -16,6 +16,7 @@ export default function ProfilePage() {
 
   const [user, setUser] = useState<CurrentUser | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
+  const [saving, setSaving] = useState(false);
   const [editing, setEditing] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
@@ -51,6 +52,7 @@ export default function ProfilePage() {
   const handleSave = async () => {
     setError(null);
     setSuccess(null);
+    setSaving(true);
 
     try {
       const updated = await updateProfile({
@@ -64,10 +66,10 @@ export default function ProfilePage() {
       setAddress(updated.profile?.address || "");
       setEditing(false);
       setSuccess(t("save_success"));
-    } catch (err) {
-      setError(
-        err instanceof Error ? err.message : t("error_update")
-      );
+    } catch {
+      setError(t("error_update"));
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -99,6 +101,13 @@ export default function ProfilePage() {
           <p className="text-sm text-text-secondary mt-2">
             {error || t("error_no_user")}
           </p>
+          <button
+            type="button"
+            onClick={() => window.location.reload()}
+            className="mt-4 min-h-11 px-3 text-primary-700 hover:text-primary-800 font-medium border border-primary-700 rounded-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-700"
+          >
+            {t("retry")}
+          </button>
         </div>
       </div>
     );
@@ -170,6 +179,7 @@ export default function ProfilePage() {
               <input
                 id="profile-name"
                 type="text"
+                disabled={saving}
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder={t("name_placeholder")}
@@ -189,6 +199,7 @@ export default function ProfilePage() {
               <input
                 id="profile-phone"
                 type="tel"
+                disabled={saving}
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
                 placeholder={t("phone_placeholder")}
@@ -208,6 +219,7 @@ export default function ProfilePage() {
               <input
                 id="profile-address"
                 type="text"
+                disabled={saving}
                 value={address}
                 onChange={(e) => setAddress(e.target.value)}
                 placeholder={t("address_placeholder")}
@@ -220,13 +232,15 @@ export default function ProfilePage() {
             <div className="flex items-center gap-3 mt-2">
               <button
                 onClick={handleSave}
-                className="px-4 py-2 rounded-lg bg-primary-700 text-white text-sm font-medium hover:bg-primary-800 transition-colors"
+                disabled={saving}
+                className="px-4 py-2 rounded-lg bg-primary-700 text-white text-sm font-medium hover:bg-primary-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
-                {t("save")}
+                {saving ? t("saving") : t("save")}
               </button>
               <button
                 onClick={handleCancel}
-                className="px-4 py-2 rounded-lg border border-border text-text-secondary text-sm font-medium hover:bg-surface-muted transition-colors"
+                disabled={saving}
+                className="px-4 py-2 rounded-lg border border-border text-text-secondary text-sm font-medium hover:bg-surface-muted disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
                 {t("cancel")}
               </button>

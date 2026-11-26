@@ -30,6 +30,10 @@ from app.users.schemas import UserInDB, UserRole
 from app.users.service import get_user_by_email
 
 
+class PasswordValidationError(ValueError):
+    pass
+
+
 def _generate_reset_token(user_id: int) -> tuple[str, str]:
     """
     Generate a JWT reset token and its ISO expiry datetime.
@@ -146,22 +150,24 @@ def complete_password_reset(token: str, new_password: str) -> None:
     # 1. Decode and validate JWT
     user_id = _decode_reset_token(token)
     if user_id is None:
-        raise ValueError("The reset link is invalid or has expired. Please request a new one.")
+        raise PasswordValidationError("The reset link is invalid or has expired. Please request a new one.")
 
     # 2. Check the token record in DB (prevents replay)
     record = get_token_record(token)
     if record is None:
-        raise ValueError("The reset link is invalid or has expired. Please request a new one.")
+        raise PasswordValidationError("The reset link is invalid or has expired. Please request a new one.")
 
     if record.get("used", False):
-        raise ValueError("This reset link has already been used. Please request a new one.")
+        raise PasswordValidationError("This reset link has already been used. Please request a new one.")
 
     # 3. Hash the new password and update the user
     hashed_pw = hash_password(new_password)
-    update_user_in_db(user_id, {"hashed_password": hashed_pw})
+    if not update_user_in_db(user_id, {"hashed_password": hashed_pw}):
+        raise PasswordValidationError("The reset link is invalid or has expired. Please request a new one.")
 
     # 4. Invalidate the token
-    mark_token_used(token)
+    if not mark_token_used(token):
+        raise RuntimeError("Unable to invalidate password reset token.")
 
 
 def change_user_password(
@@ -185,12 +191,13 @@ def change_user_password(
 
     user_doc = get_by_id(user_id)
     if user_doc is None:
-        raise ValueError("User not found.")
+        raise PasswordValidationError("User not found.")
 
     # Verify current password
     if not verify_password(current_password, user_doc.get("hashed_password", "")):
-        raise ValueError("Current password is incorrect.")
+        raise PasswordValidationError("Current password is incorrect.")
 
     # Hash and update
     hashed_pw = hash_password(new_password)
-    update_user_in_db(user_id, {"hashed_password": hashed_pw})
+    if not update_user_in_db(user_id, {"hashed_password": hashed_pw}):
+        raise PasswordValidationError("User not found.")

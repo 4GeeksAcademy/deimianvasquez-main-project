@@ -99,5 +99,5 @@ def send_reset_email(to_email: str, reset_token: str, expires_minutes: int = 15)
         )
         return True
     except Exception:
-        logger.exception("Failed to send password reset email to %s", to_email)
+        logger.error("Failed to send password reset email")
         return False

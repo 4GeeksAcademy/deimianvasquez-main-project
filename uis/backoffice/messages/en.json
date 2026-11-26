@@ -25,6 +25,7 @@
     "email_required": "Email is required",
     "password_required": "Password is required",
     "error_prefix": "Login failed",
+    "error_sign_in": "Could not sign in. Check your credentials and connection, then try again.",
     "invalid_credentials": "Invalid credentials",
     "forgot_password": "Forgot your password?"
   },
@@ -47,7 +48,9 @@
     "email_required": "Email is required",
     "password_min": "Password must be at least 6 characters",
     "password_mismatch": "Passwords do not match",
-    "error_prefix": "Registration failed"
+    "error_prefix": "Registration failed",
+    "error_register": "Could not complete or confirm registration. Check your details or try signing in before registering again.",
+    "account_created_sign_in": "Your account was created, but sign-in failed. Please sign in using the link below."
   },
   "home": {
     "title": "HealthCore",
@@ -82,13 +85,19 @@
     "total_closed": "Total Closed",
     "average": "Average",
     "export_csv": "Download results as CSV",
+    "exporting": "Preparing download...",
+    "retry_action": "Try again",
     "error_prefix": "Server error",
-    "error_unknown": "Unknown error processing the file",
+    "error_unknown": "Could not analyze the file. Check that it is a valid UTF-8 CSV and try again.",
     "error_export": "Error exporting results",
     "error_download": "Error downloading CSV",
     "error_create": "Error creating incident",
+    "error_invalid_fields": "Check these fields: {fields}.",
+    "error_invalid_input": "Check the incident details and try again.",
+    "error_create_uncertain": "Could not confirm the incident was created. Check the incident list before submitting again.",
     "error_connection": "Connection error with server",
     "error_load_list": "Error loading incidents",
+    "list_retry": "Reload list",
     "tab_analyze": "Analyze CSV",
     "tab_register": "Register Incident",
     "tab_list": "All Incidents",
@@ -149,6 +158,7 @@
     "summary_by_branch": "By Branch",
     "summary_loading": "Loading summary...",
     "summary_error": "Error loading summary",
+    "summary_retry": "Reload summary",
     "summary_empty": "No data yet",
     "summary_empty_hint": "Register some incidents to see metrics"
   },
@@ -179,10 +189,15 @@
     "no_suppliers": "No suppliers found",
     "loading": "Loading suppliers...",
     "error_load": "Error loading suppliers",
+    "retry": "Reload suppliers",
     "error_create": "Error creating supplier",
+    "error_invalid_fields": "Check these fields: {fields}.",
+    "error_invalid_input": "Check the supplier details and try again.",
+    "error_create_uncertain": "Could not confirm the supplier was created. Check the supplier list before submitting again.",
     "error_connection": "Connection error with server",
     "error_status": "Could not change status",
     "error_rate": "Could not update rate",
+    "updating": "Updating supplier...",
     "form_title": "Register new supplier",
     "form_name": "Supplier name",
     "form_country": "Country",
@@ -240,11 +255,13 @@
     "address_placeholder": "e.g. 123 Main St, City",
     "edit": "Edit profile",
     "save": "Save changes",
+    "saving": "Saving...",
     "cancel": "Cancel",
     "not_specified": "Not specified",
     "save_success": "Profile updated successfully.",
     "error_load": "Could not load profile information.",
-    "error_update": "Error updating profile",
+    "retry": "Reload profile",
+    "error_update": "Could not confirm the profile update. Please try again.",
     "loading": "Loading profile...",
     "error_title": "Error",
     "error_no_user": "Could not load user information."
@@ -258,6 +275,7 @@
     "submitting": "Sending...",
     "email_required": "Email is required",
     "check_email": "Check your email",
+    "request_failed": "Could not confirm your request. Check your connection and try again.",
     "confirmation": "If an account exists with that email, you will receive a password reset link shortly.",
     "back_to_login": "Back to Sign In"
   },
@@ -280,7 +298,8 @@
     "request_new": "Request a new link",
     "back_to_login": "Back to Sign In",
     "loading": "Validating your link...",
-    "error_prefix": "Could not reset password"
+    "error_prefix": "Could not reset password",
+    "reset_failed": "Could not confirm the password reset. Try signing in with your new password or request a new link."
   },
   "change_password": {
     "title": "Change Password",
@@ -297,6 +316,8 @@
     "password_min": "New password must be at least 6 characters",
     "password_mismatch": "New passwords do not match",
     "success_message": "Password changed successfully.",
-    "error_prefix": "Could not change password"
+    "error_prefix": "Could not change password",
+    "change_failed": "Could not confirm the password change. Check your current password or try signing in with the new one.",
+    "recover_access": "Recover account access"
   }
 }
