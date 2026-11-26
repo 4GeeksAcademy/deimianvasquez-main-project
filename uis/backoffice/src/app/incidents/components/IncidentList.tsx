@@ -69,12 +69,12 @@ export default function IncidentList() {
       const qs = buildParams().toString();
       const url = `${API_BASE}/api/incidents/${qs ? `?${qs}` : ""}`;
       const res = await fetchWithAuth(url);
-      if (!res.ok) throw new Error(`Error ${res.status}`);
+      if (!res.ok) throw new Error(t("error_load_list"));
       const data = await res.json();
       setIncidents(data.items);
       setTotal(data.total);
-    } catch (e) {
-      setError(e instanceof Error ? e.message : t("error_load_list"));
+    } catch {
+      setError(t("error_load_list"));
     } finally {
       setLoading(false);
     }
@@ -98,16 +98,11 @@ export default function IncidentList() {
           body: JSON.stringify({ status: newStatus }),
         },
       );
-      if (!res.ok) {
-        const err = await res.json().catch(() => null);
-        throw new Error(
-          err?.detail?.[0]?.message || err?.detail || `Error ${res.status}`,
-        );
-      }
+      if (!res.ok) throw new Error(t("error_status_update"));
       // Re-fetch to refresh list
       await fetchIncidents();
-    } catch (e) {
-      setError(e instanceof Error ? e.message : t("error_status_update"));
+    } catch {
+      setError(t("error_status_update"));
     } finally {
       setChangingStatus(null);
     }
@@ -234,7 +229,7 @@ export default function IncidentList() {
       </div>
 
       {/* ── Count ── */}
-      {!loading && (
+      {!loading && !error && (
         <p className="text-sm text-text-secondary mb-3">
           {t("list_showing", { count: incidents.length, total })}
         </p>
@@ -242,8 +237,15 @@ export default function IncidentList() {
 
       {/* ── Error ── */}
       {error && (
-        <div className="mb-4 p-3 bg-error/10 border border-error/30 rounded-lg text-sm text-error">
-          {error}
+        <div role="alert" className="mb-4 p-3 bg-error/10 border border-error/30 rounded-lg text-sm text-error">
+          <p>{error}</p>
+          <button
+            type="button"
+            onClick={fetchIncidents}
+            className="mt-2 min-h-11 px-3 text-primary-700 hover:text-primary-800 font-medium border border-primary-700 rounded-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-700"
+          >
+            {t("list_retry")}
+          </button>
         </div>
       )}
 
@@ -263,7 +265,7 @@ export default function IncidentList() {
       {/* ═══════════════════════════════════════════
                  TABLE
           ═══════════════════════════════════════════ */}
-      {!loading && incidents.length > 0 && (
+      {!loading && !error && incidents.length > 0 && (
         <div className="overflow-x-auto rounded-xl border border-border bg-surface">
           <table className="w-full text-sm">
             <thead>

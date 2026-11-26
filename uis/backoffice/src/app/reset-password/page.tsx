@@ -17,6 +17,7 @@ function ResetPasswordForm() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [resetFailed, setResetFailed] = useState(false);
   const [success, setSuccess] = useState(false);
 
   useEffect(() => {
@@ -31,6 +32,7 @@ function ResetPasswordForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+    setResetFailed(false);
 
     if (!token) {
       setError(t("missing_token"));
@@ -54,10 +56,9 @@ function ResetPasswordForm() {
       setTimeout(() => {
         router.push("/login");
       }, 2000);
-    } catch (err) {
-      setError(
-        err instanceof Error ? err.message : t("error_prefix")
-      );
+    } catch {
+      setError(t("reset_failed"));
+      setResetFailed(true);
     } finally {
       setLoading(false);
     }
@@ -113,8 +114,13 @@ function ResetPasswordForm() {
     >
       {/* Error */}
       {error && (
-        <div className="mb-4 p-3 bg-error/10 border border-error/30 rounded-lg">
+        <div role="alert" className="mb-4 p-3 bg-error/10 border border-error/30 rounded-lg">
           <p className="text-sm text-error font-medium">{error}</p>
+          {resetFailed && (
+            <Link href="/forgot-password" className="mt-2 inline-block text-sm text-primary-700 hover:text-primary-800 underline">
+              {t("request_new")}
+            </Link>
+          )}
         </div>
       )}
 

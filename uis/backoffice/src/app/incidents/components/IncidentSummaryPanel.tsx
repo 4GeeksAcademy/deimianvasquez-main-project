@@ -24,11 +24,11 @@ export default function IncidentSummaryPanel() {
     setError(null);
     try {
       const res = await fetchWithAuth(`${API_BASE}/api/incidents/summary`);
-      if (!res.ok) throw new Error(`Error ${res.status}`);
+      if (!res.ok) throw new Error(t("summary_error"));
       const data: IncidentSummary = await res.json();
       setSummary(data);
-    } catch (e) {
-      setError(e instanceof Error ? e.message : t("summary_error"));
+    } catch {
+      setError(t("summary_error"));
     } finally {
       setLoading(false);
     }
@@ -39,7 +39,7 @@ export default function IncidentSummaryPanel() {
   }, []);
 
   const totalIncidents = summary
-    ? Object.values(summary.by_status).reduce((a, b) => a + b, 0)
+    ? Object.values(summary.by_status ?? {}).reduce((a, b) => a + b, 0)
     : 0;
 
   // ── Helper to render a breakdown table ──
@@ -95,8 +95,15 @@ export default function IncidentSummaryPanel() {
 
       {/* Error */}
       {error && (
-        <div className="mb-4 p-3 bg-error/10 border border-error/30 rounded-lg text-sm text-error">
-          {error}
+        <div role="alert" className="mb-4 p-3 bg-error/10 border border-error/30 rounded-lg text-sm text-error">
+          <p>{error}</p>
+          <button
+            type="button"
+            onClick={fetchSummary}
+            className="mt-2 min-h-11 px-3 text-primary-700 hover:text-primary-800 font-medium border border-primary-700 rounded-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-700"
+          >
+            {t("summary_retry")}
+          </button>
         </div>
       )}
 

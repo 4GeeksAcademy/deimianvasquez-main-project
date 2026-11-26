@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { requireAuth } from "@/services/auth-guard";
 import { changePassword } from "@/services/api";
@@ -14,11 +15,13 @@ export default function ChangePasswordPage() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [changeFailed, setChangeFailed] = useState(false);
   const [success, setSuccess] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+    setChangeFailed(false);
     setSuccess(false);
 
     if (!currentPassword) {
@@ -43,10 +46,9 @@ export default function ChangePasswordPage() {
       setCurrentPassword("");
       setNewPassword("");
       setConfirmPassword("");
-    } catch (err) {
-      setError(
-        err instanceof Error ? err.message : t("error_prefix")
-      );
+    } catch {
+      setError(t("change_failed"));
+      setChangeFailed(true);
     } finally {
       setLoading(false);
     }
@@ -81,8 +83,13 @@ export default function ChangePasswordPage() {
 
           {/* Error */}
           {error && (
-            <div className="mb-4 p-3 bg-error/10 border border-error/30 rounded-lg">
+            <div role="alert" className="mb-4 p-3 bg-error/10 border border-error/30 rounded-lg">
               <p className="text-sm text-error font-medium">{error}</p>
+              {changeFailed && (
+                <Link href="/forgot-password" className="mt-2 inline-block text-sm text-primary-700 hover:text-primary-800 underline">
+                  {t("recover_access")}
+                </Link>
+              )}
             </div>
           )}
 

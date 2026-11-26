@@ -151,17 +151,27 @@ def read_csv(filepath: str) -> tuple[dict[str, str], list[dict[str, str]]]:
 
 def main() -> None:
     if len(sys.argv) < 2:
-        print("Usage: python analyze.py <path-to-csv>")
+        print("Usage: python analyze.py <path-to-csv>", file=sys.stderr)
         sys.exit(1)
 
     filepath = sys.argv[1]
 
     if not os.path.isfile(filepath):
-        print(f"Error: File not found: {filepath}")
+        print("Error: File not found or not a regular file.", file=sys.stderr)
         sys.exit(1)
 
     # Read CSV
-    _, rows = read_csv(filepath)
+    try:
+        _, rows = read_csv(filepath)
+    except UnicodeDecodeError:
+        print("Error: File must be encoded in UTF-8.", file=sys.stderr)
+        sys.exit(1)
+    except OSError:
+        print("Error: Unable to read the file. Check its availability and permissions.", file=sys.stderr)
+        sys.exit(1)
+    except ValueError as error:
+        print(f"Error: {error}", file=sys.stderr)
+        sys.exit(1)
     total = len(rows)
 
     # Validate
@@ -194,8 +204,12 @@ def main() -> None:
             csv_output = export_csv_from_result(result)
             base = os.path.splitext(filepath)[0]
             export_path = f"{base}-report.csv"
-            with open(export_path, "w", encoding="utf-8") as f:
-                f.write(csv_output)
+            try:
+                with open(export_path, "w", encoding="utf-8") as f:
+                    f.write(csv_output)
+            except OSError:
+                print("Error: Unable to write the report. Check the destination and permissions.", file=sys.stderr)
+                sys.exit(1)
             print(f"Report exported to: {export_path}")
     except (EOFError, KeyboardInterrupt):
         pass

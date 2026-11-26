@@ -25,6 +25,7 @@ from app.auth.schemas import (
     TokenResponse,
 )
 from app.auth.service import (
+    PasswordValidationError,
     change_user_password,
     complete_password_reset,
     request_password_reset,
@@ -150,7 +151,7 @@ def reset_password(payload: ResetPasswordRequest):
     """
     try:
         complete_password_reset(payload.token, payload.new_password)
-    except ValueError as e:
+    except PasswordValidationError as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
     return MessageResponse(
@@ -172,7 +173,7 @@ def change_password(
     """
     try:
         change_user_password(current_user.id, payload.current_password, payload.new_password)
-    except ValueError as e:
+    except PasswordValidationError as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
     return MessageResponse(message="Your password has been changed successfully.")

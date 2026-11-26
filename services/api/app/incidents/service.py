@@ -8,7 +8,7 @@ Sits between the router (HTTP layer) and the repository (data access).
 
 from typing import Optional
 
-from healthcore.analyzer import AnalysisResult, analyze_csv_content
+from healthcore.analyzer import AnalysisResult, CSVValidationError, analyze_csv_content
 
 from app.incidents.constants import VALID_TRANSITIONS
 from app.incidents.repository import (
@@ -33,6 +33,18 @@ from app.incidents.schemas import (
 _repo = IncidentRepository()
 
 
+class NoAnalysisResultError(ValueError):
+    pass
+
+
+class IncidentNotFoundError(ValueError):
+    pass
+
+
+class IncidentValidationError(ValueError):
+    pass
+
+
 # ═══════════════════════════════════════════════
 #  CSV Analysis Service (v1 — existing)
 # ═══════════════════════════════════════════════
@@ -48,11 +60,11 @@ def validate_csv_content(content: str) -> None:
 
     if len(lines) < 2:
         msg = "File has no data rows. The CSV must contain a header row and at least one data row."
-        raise ValueError(msg)
+        raise CSVValidationError(msg)
 
     if "," not in lines[0]:
         msg = "Invalid CSV format. File must be comma-separated (CSV)."
-        raise ValueError(msg)
+        raise CSVValidationError(msg)
 
 
 def process_csv_analysis(content: str) -> AnalysisResponse:
@@ -90,7 +102,7 @@ def export_last_result_as_csv() -> str:
     result = _repo.get_last()
     if result is None:
         msg = "No analysis results available. Perform a POST /api/incidents/analyze first."
-        raise ValueError(msg)
+        raise NoAnalysisResultError(msg)
 
     return export_csv_from_result(result)
 
@@ -175,17 +187,14 @@ def change_incident_status(incident_id: str, payload: IncidentStatusUpdate) -> I
     """
     doc = get_incident_by_id(incident_id)
     if doc is None:
-        raise ValueError("Incident not found")
+        raise IncidentNotFoundError("Incident not found")
 
     current = doc["status"]
     new_status = payload.status
 
     allowed = VALID_TRANSITIONS.get(current, set())
     if new_status not in allowed:
-        raise ValueError(
-            f"Invalid status transition: from '{current}' to '{new_status}'. "
-            f"Allowed transitions from '{current}': {', '.join(sorted(allowed)) or '(none — terminal state)'}."
-        )
+        raise IncidentValidationError("Invalid incident status transition.")
 
     updated = update_incident_status(incident_id, new_status)
     assert updated is not None

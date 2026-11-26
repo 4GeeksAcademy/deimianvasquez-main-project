@@ -71,10 +71,8 @@ export function useRecordList(filters: CandidateFilters) {
         },
         error: null,
       });
-    } catch (err) {
-      const message =
-        err instanceof Error ? err.message : "Failed to fetch candidates";
-      setState({ status: "error", data: null, error: message });
+    } catch {
+      setState({ status: "error", data: null, error: "Could not load candidates. Please try again." });
     }
   }, [filtersKey]);
 
@@ -108,10 +106,8 @@ export function useRecord(id: Id) {
     try {
       const data = await getRecord(id);
       setState({ status: "success", data, error: null });
-    } catch (err) {
-      const message =
-        err instanceof Error ? err.message : "Failed to fetch candidate";
-      setState({ status: "error", data: null, error: message });
+    } catch {
+      setState({ status: "error", data: null, error: "Could not load this candidate. Please try again." });
     }
   }, [id]);
 
@@ -136,10 +132,8 @@ export function useNotes(id: Id) {
     try {
       const data = await getNotes(id);
       setState({ status: "success", data, error: null });
-    } catch (err) {
-      const message =
-        err instanceof Error ? err.message : "Failed to fetch notes";
-      setState({ status: "error", data: null, error: message });
+    } catch {
+      setState({ status: "error", data: null, error: "Could not load notes. Please try again." });
     }
   }, [id]);
 
@@ -166,9 +160,7 @@ export function useCreateRecord() {
       setState({ status: "success", data, error: null });
       return data;
     } catch (err) {
-      const message =
-        err instanceof Error ? err.message : "Failed to create candidate";
-      setState({ status: "error", data: null, error: message });
+      setState({ status: "error", data: null, error: "Could not confirm the candidate was created. Check the candidate list before trying again." });
       throw err;
     }
   }, []);
@@ -191,9 +183,7 @@ export function useUpdateRecord() {
         setState({ status: "success", data, error: null });
         return data;
       } catch (err) {
-        const message =
-          err instanceof Error ? err.message : "Failed to update candidate";
-        setState({ status: "error", data: null, error: message });
+        setState({ status: "error", data: null, error: "Could not confirm the update. Check the candidate before trying again." });
         throw err;
       }
     },
@@ -217,9 +207,7 @@ export function usePatchRecord() {
       setState({ status: "success", data, error: null });
       return data;
     } catch (err) {
-      const message =
-        err instanceof Error ? err.message : "Failed to update candidate";
-      setState({ status: "error", data: null, error: message });
+      setState({ status: "error", data: null, error: "Could not confirm the update. Check the candidate before trying again." });
       throw err;
     }
   }, []);
@@ -241,9 +229,7 @@ export function useCreateNote() {
       setState({ status: "success", data, error: null });
       return data;
     } catch (err) {
-      const message =
-        err instanceof Error ? err.message : "Failed to create note";
-      setState({ status: "error", data: null, error: message });
+      setState({ status: "error", data: null, error: "Could not confirm the note was added. Check the notes before trying again." });
       throw err;
     }
   }, []);
@@ -264,9 +250,7 @@ export function useDeleteNote() {
       await deleteNote(id, noteId);
       setState({ status: "success", data: undefined, error: null });
     } catch (err) {
-      const message =
-        err instanceof Error ? err.message : "Failed to delete note";
-      setState({ status: "error", data: null, error: message });
+      setState({ status: "error", data: null, error: "Could not confirm the note was deleted. Check the notes before trying again." });
       throw err;
     }
   }, []);

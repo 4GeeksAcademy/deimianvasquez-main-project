@@ -20,15 +20,16 @@ export function getToken(): string | null {
 export function setToken(token: string): void {
   try {
     localStorage.setItem("healthcore_token", token);
-  } catch {
-    // ignore
-  }
-  /* Also set a non‑HttpOnly cookie so the Next.js server‑side
-     middleware (proxy.ts) can check authentication before rendering HTML. */
-  try {
     document.cookie = `healthcore_token=1; path=/; max-age=86400; SameSite=Lax`;
+    if (
+      localStorage.getItem("healthcore_token") !== token ||
+      !document.cookie.split(";").some((cookie) => cookie.trim() === "healthcore_token=1")
+    ) {
+      throw new Error("Unable to start session");
+    }
   } catch {
-    // ignore
+    clearToken();
+    throw new Error("Unable to start session");
   }
 }
 
@@ -89,8 +90,13 @@ export async function login(email: string, password: string): Promise<CurrentUse
   setToken(data.access_token);
 
   // Fetch current user info
-  const user = await fetchMe();
-  return user;
+  try {
+    return await fetchMe();
+  } catch (error) {
+    clearToken();
+    _currentUser = null;
+    throw error;
+  }
 }
 
 export async function register(
@@ -109,7 +115,10 @@ export async function register(
     // data.detail could be a ValidationError array or a string
     const detail = data.detail;
     if (Array.isArray(detail)) {
-      throw new Error(detail.map((d: { msg: string }) => d.msg).join(", "));
+      const messages = detail
+        .map((item: { message?: unknown } | null) => item?.message)
+        .filter((message): message is string => typeof message === "string" && message.trim().length > 0);
+      throw new Error(messages.join(", ") || "Error al registrarse");
     }
     throw new Error(detail || "Error al registrarse");
   }

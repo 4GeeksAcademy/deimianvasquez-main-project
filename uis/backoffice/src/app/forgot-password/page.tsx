@@ -27,9 +27,8 @@ export default function ForgotPasswordPage() {
     try {
       await forgotPassword(email.trim());
       setSent(true);
-    } catch (err) {
-      // Always show the same success message per security requirements
-      setSent(true);
+    } catch {
+      setError(t("request_failed"));
     } finally {
       setLoading(false);
     }
@@ -85,7 +84,7 @@ export default function ForgotPasswordPage() {
           >
             {/* Error */}
             {error && (
-              <div className="mb-4 p-3 bg-error/10 border border-error/30 rounded-lg">
+              <div role="alert" className="mb-4 p-3 bg-error/10 border border-error/30 rounded-lg">
                 <p className="text-sm text-error font-medium">{error}</p>
               </div>
             )}

@@ -19,11 +19,16 @@ export default function IncidentsPage() {
   const [activeTab, setActiveTab] = useState<Tab>("analyze");
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const [loading, setLoading] = useState(false);
+  const [exporting, setExporting] = useState(false);
+  const [lastFile, setLastFile] = useState<File | null>(null);
+  const [errorAction, setErrorAction] = useState<"upload" | "export" | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const handleFileUpload = useCallback(async (file: File) => {
+    setLastFile(file);
     setLoading(true);
     setError(null);
+    setErrorAction(null);
     setResult(null);
 
     try {
@@ -35,25 +40,22 @@ export default function IncidentsPage() {
         body: formData,
       });
 
-      if (!response.ok) {
-        const errData = await response.json().catch(() => null);
-        throw new Error(
-          errData?.detail || `${t("error_prefix")}: ${response.status}`
-        );
-      }
+      if (!response.ok) throw new Error(t("error_unknown"));
 
       const data: AnalysisResult = await response.json();
       setResult(data);
-    } catch (err) {
-      setError(
-        err instanceof Error ? err.message : t("error_unknown")
-      );
+    } catch {
+      setError(t("error_unknown"));
+      setErrorAction("upload");
     } finally {
       setLoading(false);
     }
   }, [t]);
 
   const handleExport = useCallback(async () => {
+    setExporting(true);
+    setError(null);
+    setErrorAction(null);
     try {
       const response = await fetchWithAuth(`${API_BASE}/api/incidents/results/export`);
       if (!response.ok) throw new Error(t("error_export"));
@@ -67,10 +69,11 @@ export default function IncidentsPage() {
       a.click();
       document.body.removeChild(a);
       window.URL.revokeObjectURL(url);
-    } catch (err) {
-      setError(
-        err instanceof Error ? err.message : t("error_download")
-      );
+    } catch {
+      setError(t("error_download"));
+      setErrorAction("export");
+    } finally {
+      setExporting(false);
     }
   }, [t]);
 
@@ -149,6 +152,19 @@ export default function IncidentsPage() {
                   <div>
                     <h3 className="font-medium text-error">{t("error_prefix")}</h3>
                     <p className="text-sm text-error mt-1">{error}</p>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (errorAction === "upload" && lastFile) {
+                          handleFileUpload(lastFile);
+                        } else if (errorAction === "export") {
+                          handleExport();
+                        }
+                      }}
+                      className="mt-2 min-h-11 px-3 text-primary-700 hover:text-primary-800 font-medium border border-primary-700 rounded-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-700"
+                    >
+                      {t("retry_action")}
+                    </button>
                   </div>
                 </div>
               </div>
@@ -156,7 +172,7 @@ export default function IncidentsPage() {
 
             {/* Results Panel */}
             {result && (
-              <ResultsPanel result={result} onExport={handleExport} />
+              <ResultsPanel result={result} onExport={handleExport} exporting={exporting} />
             )}
           </>
         )}

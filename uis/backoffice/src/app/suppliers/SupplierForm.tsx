@@ -9,9 +9,10 @@ import { fetchWithAuth, API_BASE } from "@/services/api";
 interface Props {
   onCreated: () => void;
   onCancel: () => void;
+  onRefresh: () => void;
 }
 
-export default function SupplierForm({ onCreated, onCancel }: Props) {
+export default function SupplierForm({ onCreated, onCancel, onRefresh }: Props) {
   const t = useTranslations("suppliers");
   const [form, setForm] = useState({
     name: "",
@@ -25,6 +26,7 @@ export default function SupplierForm({ onCreated, onCancel }: Props) {
   });
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [uncertain, setUncertain] = useState(false);
 
   const toggleCategory = (cat: string) => {
     setForm((prev) => ({
@@ -38,6 +40,7 @@ export default function SupplierForm({ onCreated, onCancel }: Props) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+    setUncertain(false);
 
     // Validaciones del lado del cliente
     if (!form.name.trim()) {
@@ -85,19 +88,38 @@ export default function SupplierForm({ onCreated, onCancel }: Props) {
       });
 
       if (!res.ok) {
-        const data = await res.json();
-        const detail = data.detail;
-        if (Array.isArray(detail)) {
-          setError(detail.map((d: { msg: string }) => d.msg).join(", "));
+        if (res.status === 400 || res.status === 422) {
+          const data = await res.json().catch(() => null);
+          const fieldLabels: Record<string, string> = {
+            "body.name": t("form_name"),
+            "body.country": t("form_country"),
+            "body.currency": t("form_country"),
+            "body.categories": t("form_categories"),
+            "body.monthly_rate": t("form_monthly_rate"),
+            "body.compliance_agreement": t("form_compliance"),
+            "body.contract_renewal_date": t("form_renewal"),
+            "body.contact_email": t("form_email"),
+            "body.notes": t("form_notes"),
+          };
+          const fields: string[] = Array.isArray(data?.detail)
+            ? data.detail
+                .map((item: { field?: unknown } | null) =>
+                  typeof item?.field === "string" ? fieldLabels[item.field] : undefined,
+                )
+                .filter((field: string | undefined): field is string => Boolean(field))
+            : [];
+          setError(fields.length ? t("error_invalid_fields", { fields: [...new Set(fields)].join(", ") }) : t("error_invalid_input"));
         } else {
-          setError(detail || t("error_create"));
+          setError(t("error_create_uncertain"));
+          setUncertain(true);
         }
         return;
       }
 
       onCreated();
     } catch {
-      setError(t("error_connection"));
+      setError(t("error_create_uncertain"));
+      setUncertain(true);
     } finally {
       setSaving(false);
     }
@@ -113,8 +135,17 @@ export default function SupplierForm({ onCreated, onCancel }: Props) {
       </h2>
 
       {error && (
-        <div className="mb-4 px-4 py-3 rounded-lg bg-red-50 border border-red-200 text-sm text-error">
-          {error}
+        <div role="alert" className="mb-4 px-4 py-3 rounded-lg bg-red-50 border border-red-200 text-sm text-error">
+          <p>{error}</p>
+          {uncertain && (
+            <button
+              type="button"
+              onClick={onRefresh}
+              className="mt-2 min-h-11 px-3 text-primary-700 hover:text-primary-800 font-medium border border-primary-700 rounded-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-700"
+            >
+              {t("retry")}
+            </button>
+          )}
         </div>
       )}
 
