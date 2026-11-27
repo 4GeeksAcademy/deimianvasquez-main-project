@@ -13,8 +13,7 @@ import warnings
 from pathlib import Path
 
 from dotenv import load_dotenv
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+from sqlmodel import Session, create_engine
 
 # ── Cargar .env ───────────────────────────────────────────────────
 ENV_PATH = Path(__file__).resolve().parent.parent.parent / ".env"
@@ -37,20 +36,19 @@ if DATABASE_URL.startswith("postgresql://"):
 
 # ── Engine y session ──────────────────────────────────────────────
 engine = create_engine(DATABASE_URL, pool_pre_ping=True)
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 
 def get_session():
     """
-    Generador de sesión de base de datos.
+    Generador de sesión SQLModel para usar con FastAPI Depends.
 
-    Úsalo como dependencia de FastAPI:
-        @app.get("/items")
+    Usa ``sqlmodel.Session`` en lugar de ``sqlalchemy.orm.Session``
+    para que los routers puedan llamar a ``session.exec()``.
+
+    Uso:
+        @router.get("/items")
         def get_items(session: Session = Depends(get_session)):
             ...
     """
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
+    with Session(engine) as session:
+        yield session

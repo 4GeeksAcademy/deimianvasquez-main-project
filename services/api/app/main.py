@@ -13,9 +13,12 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
+from sqlmodel import SQLModel
 
 from app.auth.router import router as auth_router
+from app.db.supa_conn import engine
 from app.incidents.router import router as incidents_router
+from app.inventory.router import router as inventory_router
 from app.profiles.router import router as profiles_router
 from app.suppliers.router import router as suppliers_router
 from app.users.router import router as users_router
@@ -111,6 +114,26 @@ app.include_router(users_router, prefix="/users")
 app.include_router(profiles_router, prefix="/profiles")
 app.include_router(incidents_router)
 app.include_router(suppliers_router)
+app.include_router(inventory_router)
+
+
+# ═══════════════════════════════════════════════════════════
+#  Startup — Initialize Supabase Schema
+# ═══════════════════════════════════════════════════════════
+
+
+@app.on_event("startup")
+def on_startup():
+    """
+    Crea las tablas de inventario en Supabase si no existen.
+
+    ⚠️ ``create_all`` es seguro en desarrollo porque solo crea
+    tablas que aún no existen. En producción se usarían migraciones
+    (Alembic) en lugar de este mecanismo.
+    """
+    from app.inventory.models import MedicalSupply, SupplyConsumption, SupplyDelivery  # noqa: F401
+
+    SQLModel.metadata.create_all(engine)
 
 
 # ═══════════════════════════════════════════════════════════

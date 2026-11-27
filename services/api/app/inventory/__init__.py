@@ -1,0 +1,1 @@
+"""Módulo de inventario de suministros médicos (HealthCore)."""
