@@ -17,6 +17,7 @@ from app.suppliers.models import (
     SupplierResponse,
     SupplierStatusUpdate,
     VALID_STATUSES,
+    doc_to_response,
 )
 from app.suppliers.repository import (
     find_all,
@@ -54,7 +55,7 @@ def create_supplier(
     """
     data = payload.model_dump()
     doc = insert_supplier(data)
-    return SupplierResponse(id=doc.doc_id, **doc)
+    return doc_to_response(doc)
 
 
 @router.get("", response_model=PaginatedSuppliers)
@@ -75,7 +76,7 @@ def list_suppliers(
     - `limit`: máximo de registros por página (default: 20)
     """
     result = find_all(country=country, category=category, skip=skip, limit=limit)
-    items = [SupplierResponse(id=d.doc_id, **d) for d in result["items"]]
+    items = [doc_to_response(d) for d in result["items"]]
     return PaginatedSuppliers(items=items, total=result["total"], skip=skip, limit=limit)
 
 
@@ -92,7 +93,7 @@ def get_supplier(
     doc = find_by_id(supplier_id)
     if doc is None:
         raise HTTPException(status_code=404, detail="Proveedor no encontrado")
-    return SupplierResponse(id=doc.doc_id, **doc)
+    return doc_to_response(doc)
 
 
 @router.patch("/{supplier_id}/rate", response_model=SupplierResponse)
@@ -110,7 +111,7 @@ def update_supplier_rate(
     doc = update_rate(supplier_id, payload.monthly_rate)
     if doc is None:
         raise HTTPException(status_code=404, detail="Proveedor no encontrado")
-    return SupplierResponse(id=doc.doc_id, **doc)
+    return doc_to_response(doc)
 
 
 @router.patch("/{supplier_id}/status", response_model=SupplierResponse)
@@ -134,7 +135,7 @@ def update_supplier_status(
     doc = update_status(supplier_id, payload.status.value)
     if doc is None:
         raise HTTPException(status_code=404, detail="Proveedor no encontrado")
-    return SupplierResponse(id=doc.doc_id, **doc)
+    return doc_to_response(doc)
 
 
 @router.delete("/{supplier_id}", status_code=204)

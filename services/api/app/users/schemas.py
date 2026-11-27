@@ -74,6 +74,20 @@ class UserResponse(BaseModel):
     created_at: str  # ISO datetime
 
 
+class UserRegistrationResponse(UserResponse):
+    """
+    Schema returned after user registration.
+
+    Extends ``UserResponse`` with the optional profile fields that
+    were accepted in the ``UserCreate`` request, confirming to the
+    client that the profile was created successfully.
+    """
+
+    name: Optional[str] = None
+    phone: Optional[str] = None
+    address: Optional[str] = None
+
+
 class UserInDB(UserResponse):
     """
     Internal schema that includes the hashed password.

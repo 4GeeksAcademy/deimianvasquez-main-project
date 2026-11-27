@@ -164,9 +164,6 @@ class IncidentResponse(BaseModel):
     created_at: str
     updated_at: str
 
-    class Config:
-        from_attributes = True
-
 
 class IncidentListResponse(BaseModel):
     """Response wrapper for listing incidents."""

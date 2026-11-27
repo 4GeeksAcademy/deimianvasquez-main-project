@@ -31,6 +31,7 @@ from app.users.repository import (
 from app.users.schemas import (
     UserCreate,
     UserInDB,
+    UserRegistrationResponse,
     UserResponse,
     UserRole,
     UserUpdate,
@@ -148,13 +149,16 @@ def create_user(data: UserCreate) -> UserResponse:
     )
     insert_profile(profile_data.model_dump())
 
-    # Return safe response
-    return UserResponse(
+    # Return safe response including profile fields
+    return UserRegistrationResponse(
         id=user_id,
         email=data.email,
         role=effective_role,
         is_active=True,
         created_at=now,
+        name=data.name,
+        phone=data.phone,
+        address=data.address,
     )
 
 
