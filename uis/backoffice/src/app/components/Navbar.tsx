@@ -86,7 +86,7 @@ export default function Navbar() {
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden min-[901px]:flex items-center gap-1 min-w-0">
+          <div className="hidden min-[1050px]:flex items-center gap-1 min-w-0">
             <NavLink href="/" active={isActive("/")}>
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
@@ -107,6 +107,12 @@ export default function Navbar() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
                   </svg>
                   {t("suppliers")}
+                </NavLink>
+                <NavLink href="/inventory" active={isActive("/inventory") || pathname.startsWith("/inventory/")}>
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                  </svg>
+                  {t("inventory")}
                 </NavLink>
                 <NavLink href="/account/profile" active={isActive("/account/profile")}>
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -170,7 +176,7 @@ export default function Navbar() {
           </div>
 
           {/* Mobile: Hamburger + Lang toggle */}
-          <div className="flex min-[901px]:hidden items-center gap-2">
+          <div className="flex min-[1050px]:hidden items-center gap-2">
             {/* Lang toggle mobile */}
             <button
               onClick={toggleLang}
@@ -202,7 +208,7 @@ export default function Navbar() {
 
       {/* Mobile Menu */}
       {mobileOpen && (
-        <div className="min-[901px]:hidden border-t border-border bg-surface">
+        <div className="min-[1050px]:hidden border-t border-border bg-surface">
           <div className="px-4 py-3 space-y-1">
             <MobileNavLink href="/" active={isActive("/")} onClick={() => setMobileOpen(false)}>
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -224,6 +230,12 @@ export default function Navbar() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
                   </svg>
                   {t("suppliers")}
+                </MobileNavLink>
+                <MobileNavLink href="/inventory" active={isActive("/inventory") || pathname.startsWith("/inventory/")} onClick={() => setMobileOpen(false)}>
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                  </svg>
+                  {t("inventory")}
                 </MobileNavLink>
                 <MobileNavLink href="/account/profile" active={isActive("/account/profile")} onClick={() => setMobileOpen(false)}>
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
