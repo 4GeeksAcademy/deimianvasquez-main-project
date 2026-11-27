@@ -12,6 +12,7 @@ from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from pydantic import BaseModel
 
 from app.auth.router import router as auth_router
 from app.incidents.router import router as incidents_router
@@ -117,7 +118,14 @@ app.include_router(suppliers_router)
 # ═══════════════════════════════════════════════════════════
 
 
-@app.get("/health")
+class HealthResponse(BaseModel):
+    """Response model for the health check endpoint."""
+
+    status: str
+    service: str
+
+
+@app.get("/health", response_model=HealthResponse)
 def health_check():
     """Health check endpoint."""
-    return {"status": "healthy", "service": "healthcore-api"}
+    return HealthResponse(status="healthy", service="healthcore-api")

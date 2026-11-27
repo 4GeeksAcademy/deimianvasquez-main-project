@@ -16,7 +16,12 @@ from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 
 from app.auth.deps import get_current_user
-from app.users.schemas import UserCreate, UserResponse, UserUpdate
+from app.users.schemas import (
+    UserCreate,
+    UserRegistrationResponse,
+    UserResponse,
+    UserUpdate,
+)
 from app.users.service import (
     UserAuthorizationError,
     UserConflictError,
@@ -45,7 +50,7 @@ class PaginatedUsers(BaseModel):
 # ── Endpoints ──────────────────────────────────────────────────────
 
 
-@router.post("", response_model=UserResponse, status_code=201)
+@router.post("", response_model=UserRegistrationResponse, status_code=201)
 def register_user(payload: UserCreate):
     """
     Register a new user.
@@ -56,7 +61,8 @@ def register_user(payload: UserCreate):
     - Default role is ``user``.
 
     Accepts optional ``name``, ``phone``, ``address`` to populate the
-    initial profile in the same operation.
+    initial profile in the same operation. The response includes
+    the profile fields to confirm they were stored.
     """
     try:
         user = create_user(payload)

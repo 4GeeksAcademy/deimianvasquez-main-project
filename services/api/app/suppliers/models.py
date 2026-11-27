@@ -11,6 +11,7 @@ from enum import Enum
 from typing import Optional
 
 from pydantic import BaseModel, Field, field_validator
+from tinydb.table import Document
 
 
 class SupplierStatus(str, Enum):
@@ -138,3 +139,29 @@ class SupplierStatusUpdate(BaseModel):
     """Modelo para actualizar el estado del proveedor."""
 
     status: SupplierStatus = Field(..., description="Nuevo estado: active o suspended")
+
+
+# ── Helpers ────────────────────────────────────────────────────────
+
+
+def doc_to_response(doc: Document) -> SupplierResponse:
+    """
+    Convert a TinyDB supplier document to a safe SupplierResponse.
+
+    Mapea campos explícitamente para evitar exponer campos internos
+    que pudieran estar almacenados en la base de datos.
+    """
+    return SupplierResponse(
+        id=doc.doc_id,
+        name=doc.get("name", ""),
+        country=doc.get("country", ""),
+        categories=doc.get("categories", []),
+        monthly_rate=doc.get("monthly_rate", 0.0),
+        currency=doc.get("currency", ""),
+        status=doc.get("status", SupplierStatus.ACTIVE.value),
+        compliance_agreement=doc.get("compliance_agreement"),
+        contract_renewal_date=doc.get("contract_renewal_date"),
+        contact_email=doc.get("contact_email"),
+        notes=doc.get("notes"),
+        updated_at=doc.get("updated_at"),
+    )
