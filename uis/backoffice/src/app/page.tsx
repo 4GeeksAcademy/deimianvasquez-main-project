@@ -65,7 +65,7 @@ export default function Home() {
             </p>
           </Link>
 
-          <div className="group bg-surface rounded-xl border border-border p-6 opacity-50 cursor-not-allowed">
+          <div className="group bg-surface rounded-xl border border-border p-6 cursor-not-allowed">
             <div className="w-12 h-12 bg-surface-muted rounded-xl flex items-center justify-center mb-4">
               <svg
                 className="w-6 h-6 text-text-secondary"
