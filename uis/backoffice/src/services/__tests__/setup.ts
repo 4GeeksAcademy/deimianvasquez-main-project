@@ -2,6 +2,9 @@
  * Jest setup — global mocks for browser APIs used by api.ts.
  */
 
+// Make this a module to avoid redeclaration conflicts with global types
+export {};
+
 // Mock localStorage
 const localStorageMock = (() => {
   let store: Record<string, string> = {};
@@ -26,18 +29,22 @@ const localStorageMock = (() => {
 Object.defineProperty(globalThis, "localStorage", { value: localStorageMock });
 
 // Mock document.cookie
-const cookieStore: string[] = [];
+type CookieEntry = { key: string; value: string };
+const cookieStore: CookieEntry[] = [];
 Object.defineProperty(document, "cookie", {
-  get: jest.fn(() => cookieStore.join("; ")),
+  get: jest.fn(() =>
+    cookieStore.map((c) => `${c.key}=${c.value}`).join("; ")
+  ),
   set: jest.fn((value: string) => {
     const [cookiePart] = value.split(";");
-    const [key] = cookiePart.split("=");
-    // Remove existing with same key
-    const idx = cookieStore.findIndex((c) => c.trim().startsWith(key + "="));
+    const eqIdx = cookiePart.indexOf("=");
+    const key = cookiePart.slice(0, eqIdx);
+    const val = cookiePart.slice(eqIdx + 1);
+    const keys = cookieStore.map((c) => c.key);
+    const idx = keys.indexOf(key);
     if (idx !== -1) cookieStore.splice(idx, 1);
-    // Only add if not expiring
     if (!value.includes("max-age=0")) {
-      cookieStore.push(cookiePart.trim());
+      cookieStore.push({ key, value: val });
     }
   }),
   configurable: true,

@@ -498,40 +498,9 @@
         'contact-hq-label': 'Oficina central'
       }
     };
-
-    var currentLang = localStorage.getItem('healthcore-lang') || 'en';
-
-    function setLang(lang) {
-      currentLang = lang;
-      localStorage.setItem('healthcore-lang', lang);
-      document.documentElement.lang = lang === 'es' ? 'es' : 'en';
-      document.querySelector('body').classList.add('lang-switching');
-      var els = document.querySelectorAll('[data-i18n]');
-      for (var i = 0; i < els.length; i++) {
-        var key = els[i].getAttribute('data-i18n');
-        if (LANG[lang] && LANG[lang][key]) {
-          els[i].textContent = LANG[lang][key];
-        }
-      }
-      // Update lang buttons active style
-      var btns = document.querySelectorAll('[data-lang-btn]');
-      for (var j = 0; j < btns.length; j++) {
-        btns[j].classList.remove('bg-[#123047]', 'text-white');
-        btns[j].classList.add('text-[#18323D]');
-      }
-      var active = document.getElementById('lang-' + lang);
-      if (active) {
-        active.classList.add('bg-[#123047]', 'text-white');
-        active.classList.remove('text-[#18323D]');
-      }
-      setTimeout(function () {
-        document.querySelector('body').classList.remove('lang-switching');
-      }, 150);
-    }
-
-    // Init language on load
-    setLang(currentLang);
   </script>
+  <!-- ========== Lógica i18n compartida (i18n.js) ========== -->
+  <script src="i18n.js"></script>
 
 </body>
 </html>

@@ -11,3 +11,6 @@ export interface BaseEntity {
   createdAt?: string;
   updatedAt?: string;
 }
+
+// Re-export UI component types
+export * from "./src/ui";
