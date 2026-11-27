@@ -39,27 +39,27 @@ function EditCandidateContent() {
 
   if (fetchStatus === "loading") {
     return (
-      <main className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-6 px-4 py-8 sm:px-6 lg:px-8">
+      <div className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-6 px-4 py-8 sm:px-6 lg:px-8">
         <LoadingSkeleton count={1} />
-      </main>
+      </div>
     );
   }
 
   if (fetchStatus === "error") {
     return (
-      <main className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-6 px-4 py-8 sm:px-6 lg:px-8">
+      <div className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-6 px-4 py-8 sm:px-6 lg:px-8">
         <ErrorMessage
           message={fetchError ?? "Failed to load candidate"}
           onRetry={refetch}
         />
-      </main>
+      </div>
     );
   }
 
   if (!candidate) return null;
 
   return (
-    <main className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-6 px-4 py-8 sm:px-6 lg:px-8">
+    <div className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-6 px-4 py-8 sm:px-6 lg:px-8">
       {/* Breadcrumb */}
       <nav className="flex items-center gap-2 text-sm text-text-secondary">
         <Link href="/" className="hover:text-primary-700 transition-colors">
@@ -94,7 +94,7 @@ function EditCandidateContent() {
           error={updateError}
         />
       </Card>
-    </main>
+    </div>
   );
 }
 
@@ -104,9 +104,9 @@ export default function EditCandidatePage() {
       <Header />
       <Suspense
         fallback={
-          <main className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-6 px-4 py-8 sm:px-6 lg:px-8">
+          <div className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-6 px-4 py-8 sm:px-6 lg:px-8">
             <LoadingSkeleton count={1} />
-          </main>
+          </div>
         }
       >
         <EditCandidateContent />
