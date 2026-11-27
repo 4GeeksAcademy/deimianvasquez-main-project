@@ -22,6 +22,7 @@ function ViewToggle({ view, onChange }: ViewToggleProps) {
         variant={view === "grid" ? "primary" : "ghost"}
         size="sm"
         onClick={() => onChange("grid")}
+        aria-label="Grid view"
         className="min-h-0 px-2.5 py-1.5"
       >
         <svg
@@ -48,6 +49,7 @@ function ViewToggle({ view, onChange }: ViewToggleProps) {
         variant={view === "list" ? "primary" : "ghost"}
         size="sm"
         onClick={() => onChange("list")}
+        aria-label="List view"
         className="min-h-0 px-2.5 py-1.5"
       >
         <svg

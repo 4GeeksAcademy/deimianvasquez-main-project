@@ -72,9 +72,13 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
+  // Detectar zona horaria del navegador, con fallback a Chile continental
+  const timeZone =
+    Intl.DateTimeFormat().resolvedOptions().timeZone || "America/Santiago";
+
   return (
     <LocaleContext.Provider value={{ locale, setLocale }}>
-      <NextIntlClientProvider locale={locale} messages={messages}>
+      <NextIntlClientProvider locale={locale} messages={messages} timeZone={timeZone}>
         {children}
       </NextIntlClientProvider>
     </LocaleContext.Provider>

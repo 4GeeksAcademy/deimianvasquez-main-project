@@ -31,7 +31,9 @@ export default function RootLayout({
       className={`${dmSans.variable} ${inter.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-surface-muted text-text-primary font-body">
-        {children}
+        <main className="flex-1 flex flex-col">
+          {children}
+        </main>
       </body>
     </html>
   );
