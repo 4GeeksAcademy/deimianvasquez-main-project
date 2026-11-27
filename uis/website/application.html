@@ -9,15 +9,17 @@
     content="Submit a consultation request and our reception team will contact you to confirm the details."
   />
 
-  <!-- Tailwind CSS v4 Play CDN -->
-  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <!-- Static CSS (pre-compiled Tailwind v4, replaces CDN) -->
+  <link rel="stylesheet" href="assets/tailwind.css" />
 
-  <!-- Google Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <!-- Google Fonts: Inter + DM Sans with optimal loading -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link
     href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=DM+Sans:wght@600;700&display=swap"
     rel="stylesheet"
+    media="print"
+    onload="this.media='all'"
   />
 
   <style>
