@@ -12,9 +12,11 @@ dependencies = [
     "fastapi[standard]>=0.165.0",
     "healthcore-shared",
     "libpass[bcrypt]>=1.9.5.post0",
+    "psycopg2-binary>=2.9.13",
     "pyjwt>=2.15.1",
     "python-dotenv>=1.0.0",
     "resend>=2.55.1",
+    "sqlmodel>=0.0.50",
     "tinydb>=4.9.0",
 ]
 
