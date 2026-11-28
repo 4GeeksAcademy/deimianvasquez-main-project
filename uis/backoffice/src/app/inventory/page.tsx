@@ -37,6 +37,11 @@ export default function InventoryPage() {
     }
   }, [skip]);
 
+  // ── Carga inicial y cada vez que cambie skip ──
+  useEffect(() => {
+    load();
+  }, [load]);
+
   /* ── Color del indicador de stock ─────────────────────────────── */
   function stockColor(stock: number): string {
     if (stock <= 0) return "bg-red-500";
