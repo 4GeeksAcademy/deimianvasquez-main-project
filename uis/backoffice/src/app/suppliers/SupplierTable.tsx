@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useTranslations } from "next-intl";
 import type { Supplier } from "./types";
 
@@ -69,8 +69,14 @@ export default function SupplierTable({ suppliers, onUpdate }: Props) {
     }
   };
 
+  // Pre-compute symbol map so the lookup is O(1) per row
+  const currencySymbols = useMemo<Record<string, string>>(
+    () => ({ USD: "$", GBP: "£" }),
+    []
+  );
+
   const formatCurrency = (amount: number, currency: string) => {
-    const symbol = currency === "USD" ? "$" : "£";
+    const symbol = currencySymbols[currency] ?? currency;
     return `${symbol}${amount.toLocaleString("en-US", { minimumFractionDigits: 2 })}`;
   };
 

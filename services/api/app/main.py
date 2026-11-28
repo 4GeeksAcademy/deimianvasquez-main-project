@@ -7,6 +7,7 @@ Registers routers, middleware, and global exception handlers.
 """
 
 import logging
+import time
 
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
@@ -43,6 +44,25 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+# ═══════════════════════════════════════════════════════════
+#  Timing Middleware — mide latencia de cada petición
+#  Útil para identificar candidatos a caching
+# ═══════════════════════════════════════════════════════════
+
+
+@app.middleware("http")
+async def timing_middleware(request: Request, call_next):
+    """Log request method, path, status code, and duration in ms."""
+    start = time.perf_counter()
+    response = await call_next(request)
+    duration = (time.perf_counter() - start) * 1000  # ms
+
+    logger.info(
+        f"{request.method} {request.url.path} → {response.status_code} | {duration:.1f}ms"
+    )
+    return response
 
 
 # ═══════════════════════════════════════════════════════════

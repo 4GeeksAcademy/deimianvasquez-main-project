@@ -112,12 +112,16 @@ def get_all_incidents(
     search: str | None = None,
     date_from: str | None = None,
     date_to: str | None = None,
-) -> list[dict]:
+    skip: int = 0,
+    limit: int = 20,
+) -> tuple[list[dict], int]:
     """
     Return all incidents, optionally filtered (AND logic).
     - search: matches against title or description (case-insensitive).
     - date_from / date_to: inclusive ISO date range on created_at.
+    - skip / limit: pagination parameters.
     Results sorted by created_at descending.
+    Returns (items, total) tuple.
     """
     docs = _table().all()
     result = []
@@ -150,7 +154,9 @@ def get_all_incidents(
         result.append(doc)
 
     result.sort(key=lambda d: d.get("created_at", ""), reverse=True)
-    return result
+    total = len(result)
+    page = result[skip: skip + limit]
+    return page, total
 
 
 def get_incident_by_id(incident_id: str) -> Optional[dict]:

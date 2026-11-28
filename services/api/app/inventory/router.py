@@ -8,10 +8,13 @@ autenticación. Los datos de inventario viven en Supabase (SQLModel);
 los usuarios se autentican contra TinyDB.
 """
 
+import json
+
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlmodel import Session, func, select
 
 from app.auth.deps import get_current_user
+from app.core.cache import get_cached, invalidate, set_cache
 from app.db.supa_conn import get_session
 from app.inventory.models import MedicalSupply, SupplyConsumption, SupplyDelivery
 from app.inventory.schemas import (
@@ -30,6 +33,11 @@ from app.inventory.schemas import (
 from app.users.schemas import UserInDB
 
 router = APIRouter(prefix="/inventory", tags=["inventory"])
+
+# ── Cache config ──
+_INVENTORY_CACHE_PREFIX = "inventory:"
+_PRODUCTS_CACHE_KEY = "inventory:products"
+_PRODUCTS_CACHE_TTL = 30  # seconds — stock changes more frequently than incidents
 
 
 # ── Helpers ────────────────────────────────────────────────────────
@@ -56,8 +64,48 @@ def _calculate_stock(session: Session, supply_id: int) -> int:
     return int(total_delivered - total_consumed)
 
 
-def _supply_to_response(supply: MedicalSupply, session: Session) -> MedicalSupplyResponse:
-    """Convierte un MedicalSupply ORM a schema de respuesta con stock calculado."""
+def _build_stock_map(session: Session) -> dict[int, int]:
+    """
+    Construye un mapeo ``supply_id → current_stock`` con solo 2 consultas.
+
+    Reemplaza N consultas individuales de ``_calculate_stock`` cuando se
+    necesita el stock de todos los productos (ej. list_products).
+    """
+    # 1) Entregas agregadas por suministro
+    deliveries = session.exec(
+        select(SupplyDelivery.supply_id, func.sum(SupplyDelivery.quantity).label("total"))
+        .group_by(SupplyDelivery.supply_id)
+    ).all()
+    delivery_map: dict[int, int] = {r.supply_id: int(r.total) for r in deliveries}
+
+    # 2) Consumos agregados por suministro
+    consumptions = session.exec(
+        select(SupplyConsumption.supply_id, func.sum(SupplyConsumption.quantity).label("total"))
+        .group_by(SupplyConsumption.supply_id)
+    ).all()
+    consumption_map: dict[int, int] = {r.supply_id: int(r.total) for r in consumptions}
+
+    # 3) Combinar — IDs que aparecen en al menos una tabla
+    all_ids = set(delivery_map.keys()) | set(consumption_map.keys())
+    return {
+        sid: delivery_map.get(sid, 0) - consumption_map.get(sid, 0)
+        for sid in all_ids
+    }
+
+
+def _supply_to_response(
+    supply: MedicalSupply,
+    session: Session,
+    current_stock: int | None = None,
+) -> MedicalSupplyResponse:
+    """
+    Convierte un MedicalSupply ORM a schema de respuesta con stock calculado.
+
+    Si se provee ``current_stock`` se usa directamente; si no, se calcula
+    con ``_calculate_stock`` (una consulta individual).
+    """
+    if current_stock is None:
+        current_stock = _calculate_stock(session, supply.id)
     return MedicalSupplyResponse(
         id=supply.id,
         name=supply.name,
@@ -65,7 +113,7 @@ def _supply_to_response(supply: MedicalSupply, session: Session) -> MedicalSuppl
         category=supply.category,
         unit=supply.unit,
         country=supply.country,
-        current_stock=_calculate_stock(session, supply.id),
+        current_stock=current_stock,
     )
 
 
@@ -79,16 +127,40 @@ def _supply_to_response(supply: MedicalSupply, session: Session) -> MedicalSuppl
 )
 def list_products(
     session: Session = Depends(get_session),
+    skip: int = Query(0, ge=0, description="Number of products to skip"),
+    limit: int = Query(20, ge=1, le=200, description="Max products per page"),
     current_user: UserInDB = Depends(get_current_user),
 ):
     """
     Lista todos los suministros médicos con su stock actual calculado.
 
     ``current_stock`` se deriva de las entregas menos los consumos.
+    El resultado se cachea durante ``_PRODUCTS_CACHE_TTL`` segundos.
+    La caché se invalida al crear productos, registrar entregas o consumos.
+
+    Soporta paginación vía ``skip`` y ``limit``.
     """
+    # Check cache (almacena la lista COMPLETA para poder paginar desde caché)
+    cached = get_cached(_PRODUCTS_CACHE_KEY)
+    if cached is not None:
+        all_items = cached["items"]
+        total = cached["total"]
+        page = all_items[skip : skip + limit]
+        return MedicalSupplyListResponse(items=page, total=total)
+
+    # Fetch ALL products from DB
     supplies = session.exec(select(MedicalSupply)).all()
-    items = [_supply_to_response(s, session) for s in supplies]
-    return MedicalSupplyListResponse(items=items, total=len(items))
+    stock_map = _build_stock_map(session)
+    items = [_supply_to_response(s, session, stock_map.get(s.id, 0)) for s in supplies]
+    total = len(items)
+
+    # Cache the FULL list (no slice) para que cualquier página sirva desde caché
+    full_cache = MedicalSupplyListResponse(items=items, total=total)
+    set_cache(_PRODUCTS_CACHE_KEY, full_cache.model_dump(), ttl_seconds=_PRODUCTS_CACHE_TTL)
+
+    # Return only the requested page
+    page = items[skip : skip + limit]
+    return MedicalSupplyListResponse(items=page, total=total)
 
 
 # ── POST /inventory/products ───────────────────────────────────────
@@ -121,6 +193,10 @@ def create_product(
     session.add(supply)
     session.commit()
     session.refresh(supply)
+
+    # Invalidate products cache — catalogue has changed
+    invalidate(_INVENTORY_CACHE_PREFIX)
+
     return _supply_to_response(supply, session)
 
 
@@ -190,6 +266,10 @@ def create_inbound_order(
     session.add(delivery)
     session.commit()
     session.refresh(delivery)
+
+    # Invalidate products cache — stock levels have changed
+    invalidate(_INVENTORY_CACHE_PREFIX)
+
     return SupplyDeliveryResponse.model_validate(delivery)
 
 
@@ -248,6 +328,10 @@ def create_outbound_order(
     session.add(consumption)
     session.commit()
     session.refresh(consumption)
+
+    # Invalidate products cache — stock levels have changed
+    invalidate(_INVENTORY_CACHE_PREFIX)
+
     return SupplyConsumptionResponse.model_validate(consumption)
 
 

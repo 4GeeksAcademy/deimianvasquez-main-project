@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 import { useTranslations } from "next-intl";
 import type { AnalysisResult } from "../types";
 
@@ -11,10 +12,13 @@ interface ResultsPanelProps {
 
 export default function ResultsPanel({ result, onExport, exporting }: ResultsPanelProps) {
   const t = useTranslations("incidents");
-  const totalPct =
-    result.total_records > 0
-      ? (result.valid_records / result.total_records) * 100
-      : 0;
+  const totalPct = useMemo(
+    () =>
+      result.total_records > 0
+        ? (result.valid_records / result.total_records) * 100
+        : 0,
+    [result.total_records, result.valid_records],
+  );
 
   return (
     <div className="space-y-6">

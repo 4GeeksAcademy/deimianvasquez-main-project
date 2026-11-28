@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useTranslations } from "next-intl";
 import type { IncidentResponse } from "../types";
 import {
@@ -45,9 +45,9 @@ export default function IncidentList() {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [changingStatus, setChangingStatus] = useState<string | null>(null);
 
-  // ── Derived ──
-  const totalPages = Math.max(1, Math.ceil(total / limit));
-  const currentPage = Math.floor(skip / limit) + 1;
+  // ── Derived (cached with useMemo — avoids recomputation on every render) ──
+  const totalPages = useMemo(() => Math.max(1, Math.ceil(total / limit)), [total, limit]);
+  const currentPage = useMemo(() => Math.floor(skip / limit) + 1, [skip, limit]);
 
   // ── Build query params ──
   const buildParams = () => {

@@ -39,10 +39,18 @@ export interface ProductsResponse {
 
 /**
  * GET /inventory/products
- * Lista todos los suministros médicos con su stock calculado.
+ * Lista los suministros médicos con paginación vía skip/limit.
  */
-export async function fetchProducts(): Promise<ProductsResponse> {
-  const res = await fetchWithAuth(`${API_BASE}/inventory/products`);
+export async function fetchProducts(
+  skip?: number,
+  limit?: number,
+): Promise<ProductsResponse> {
+  const params = new URLSearchParams();
+  if (skip !== undefined) params.set("skip", String(skip));
+  if (limit !== undefined) params.set("limit", String(limit));
+  const qs = params.toString();
+  const url = `${API_BASE}/inventory/products${qs ? `?${qs}` : ""}`;
+  const res = await fetchWithAuth(url);
   return handleResponse<ProductsResponse>(res);
 }
 
