@@ -10,6 +10,7 @@ from typing import Optional
 
 from healthcore.analyzer import AnalysisResult, CSVValidationError, analyze_csv_content
 
+from app.core.cache import get_cached, invalidate, set_cache
 from app.incidents.constants import VALID_TRANSITIONS
 from app.incidents.repository import (
     IncidentRepository,
@@ -28,6 +29,11 @@ from app.incidents.schemas import (
     IncidentStatusUpdate,
     IncidentSummary,
 )
+
+# ── Cache key prefix ──
+_INCIDENTS_CACHE_PREFIX = "incidents:"
+_SUMMARY_CACHE_KEY = "incidents:summary"
+_SUMMARY_CACHE_TTL = 60  # seconds
 
 # ── Repository instance (in-memory for analysis results) ──
 _repo = IncidentRepository()
@@ -144,6 +150,10 @@ def create_incident(payload: IncidentCreate) -> IncidentResponse:
     )
     doc = get_incident_by_id(doc_id)
     assert doc is not None
+
+    # Invalidate cached summary — data has changed
+    invalidate(_INCIDENTS_CACHE_PREFIX)
+
     return _doc_to_response(doc)
 
 
@@ -155,9 +165,11 @@ def list_incidents(
     search: str | None = None,
     date_from: str | None = None,
     date_to: str | None = None,
+    skip: int = 0,
+    limit: int = 20,
 ) -> IncidentListResponse:
-    """List incidents with optional filters. Returns empty list if none match."""
-    docs = get_all_incidents(
+    """List incidents with optional filters and pagination. Returns empty list if none match."""
+    docs, total = get_all_incidents(
         status=status,
         origin=origin,
         branch=branch,
@@ -165,9 +177,11 @@ def list_incidents(
         search=search,
         date_from=date_from,
         date_to=date_to,
+        skip=skip,
+        limit=limit,
     )
     items = [_doc_to_response(d) for d in docs]
-    return IncidentListResponse(items=items, total=len(items))
+    return IncidentListResponse(items=items, total=total)
 
 
 def get_incident(incident_id: str) -> Optional[IncidentResponse]:
@@ -198,14 +212,33 @@ def change_incident_status(incident_id: str, payload: IncidentStatusUpdate) -> I
 
     updated = update_incident_status(incident_id, new_status)
     assert updated is not None
+
+    # Invalidate cached summary — data has changed
+    invalidate(_INCIDENTS_CACHE_PREFIX)
+
     return _doc_to_response(updated)
 
 
 def get_incident_summary() -> IncidentSummary:
-    """Compute aggregated metrics across all incidents."""
-    return IncidentSummary(
+    """Compute aggregated metrics across all incidents.
+
+    The result is cached for ``_SUMMARY_CACHE_TTL`` seconds.
+    Cache is invalidated on any create or status-change operation.
+    """
+    # Check cache first
+    cached = get_cached(_SUMMARY_CACHE_KEY)
+    if cached is not None:
+        return cached
+
+    # Compute fresh
+    summary = IncidentSummary(
         by_status=count_incidents_by_field("status"),
         by_category=count_incidents_by_field("category"),
         by_origin=count_incidents_by_field("origin"),
         by_branch=count_incidents_by_field("branch"),
     )
+
+    # Store in cache
+    set_cache(_SUMMARY_CACHE_KEY, summary, ttl_seconds=_SUMMARY_CACHE_TTL)
+
+    return summary

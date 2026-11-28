@@ -147,11 +147,13 @@ def list_all(
     search: str | None = Query(None, description="Search in title or description"),
     date_from: str | None = Query(None, description="ISO date start (inclusive)"),
     date_to: str | None = Query(None, description="ISO date end (inclusive)"),
+    skip: int = Query(0, ge=0, description="Number of incidents to skip"),
+    limit: int = Query(20, ge=1, le=100, description="Max incidents per page"),
     current_user: UserCreate = Depends(get_current_user),
 ):
     """
-    List all incidents, optionally filtered by status, origin, branch, category,
-    free-text search, or date range.
+    List incidents, optionally filtered by status, origin, branch, category,
+    free-text search, or date range. Supports pagination via skip/limit.
 
     Returns an empty list if no incidents match. Never returns an error
     for an empty database.
@@ -164,6 +166,8 @@ def list_all(
         search=search,
         date_from=date_from,
         date_to=date_to,
+        skip=skip,
+        limit=limit,
     )
 
 

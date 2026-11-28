@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import { useTranslations } from "next-intl";
 import { requireAuth } from "@/services/auth-guard";
 import { fetchProducts, createInboundOrder, createOutboundOrder } from "@/services/inventory";
@@ -13,22 +13,31 @@ export default function InventoryPage() {
   const t = useTranslations("inventory.products");
 
   const [products, setProducts] = useState<MedicalSupply[]>([]);
+  const [total, setTotal] = useState(0);
+  const [skip, setSkip] = useState(0);
+  const limit = 20;
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const totalPages = useMemo(() => Math.max(1, Math.ceil(total / limit)), [total, limit]);
+  const currentPage = useMemo(() => Math.floor(skip / limit) + 1, [skip, limit]);
 
   const load = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetchProducts();
+      const res = await fetchProducts(skip, limit);
       setProducts(res.items);
+      setTotal(res.total);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Error al cargar productos");
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [skip]);
 
+  // ── Carga inicial y cada vez que cambie skip ──
   useEffect(() => {
     load();
   }, [load]);
@@ -261,8 +270,51 @@ export default function InventoryPage() {
             </table>
           </div>
           {products.length > 0 && (
-            <div className="px-4 py-3 border-t border-border bg-surface-muted/50 text-xs text-text-secondary text-right">
-              {t("showing", { count: products.length })}
+            <div className="px-4 py-3 border-t border-border bg-surface-muted/50">
+              <div className="flex items-center justify-between text-xs text-text-secondary">
+                <span>
+                  {t("showing", {
+                    from: skip + 1,
+                    to: Math.min(skip + limit, total),
+                    total,
+                  })}
+                </span>
+                {/* Paginación */}
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setSkip(Math.max(0, skip - limit))}
+                    disabled={skip === 0}
+                    className="px-3 py-1.5 rounded border border-border bg-surface hover:bg-surface-muted disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                  >
+                    {t("pagination_previous")}
+                  </button>
+                  {Array.from({ length: Math.min(totalPages, 7) }, (_, i) => {
+                    const startPage = Math.max(0, currentPage - 4);
+                    const pageIdx = startPage + i;
+                    if (pageIdx >= totalPages) return null;
+                    return (
+                      <button
+                        key={pageIdx}
+                        onClick={() => setSkip(pageIdx * limit)}
+                        className={`px-3 py-1.5 rounded border transition-colors ${
+                          pageIdx + 1 === currentPage
+                            ? "bg-blue-600 text-white border-blue-600"
+                            : "border-border bg-surface hover:bg-surface-muted"
+                        }`}
+                      >
+                        {pageIdx + 1}
+                      </button>
+                    );
+                  })}
+                  <button
+                    onClick={() => setSkip(skip + limit)}
+                    disabled={skip + limit >= total}
+                    className="px-3 py-1.5 rounded border border-border bg-surface hover:bg-surface-muted disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                  >
+                    {t("pagination_next")}
+                  </button>
+                </div>
+              </div>
             </div>
           )}
         </div>

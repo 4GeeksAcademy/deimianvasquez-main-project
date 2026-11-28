@@ -1,15 +1,33 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { useState, useCallback } from "react";
 import { useTranslations } from "next-intl";
 import FileUpload from "./components/FileUpload";
 import ResultsPanel from "./components/ResultsPanel";
 import IncidentForm from "./components/IncidentForm";
 import IncidentList from "./components/IncidentList";
-import IncidentSummaryPanel from "./components/IncidentSummaryPanel";
 import type { AnalysisResult } from "./types";
 import { fetchWithAuth, API_BASE } from "@/services/api";
 import { requireAuth } from "@/services/auth-guard";
+
+// Lazy-loaded components — solo se cargan cuando se necesita su tab
+const IncidentSummaryPanel = dynamic(
+  () => import("./components/IncidentSummaryPanel"),
+  {
+    loading: () => (
+      <div className="flex items-center justify-center py-12">
+        <div className="animate-pulse bg-surface rounded-xl p-8 w-full">
+          <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-48 mb-6" />
+          <div className="grid grid-cols-2 gap-4">
+            <div className="h-24 bg-gray-200 dark:bg-gray-700 rounded" />
+            <div className="h-24 bg-gray-200 dark:bg-gray-700 rounded" />
+          </div>
+        </div>
+      </div>
+    ),
+  }
+);
 
 type Tab = "analyze" | "register" | "list" | "summary";
 

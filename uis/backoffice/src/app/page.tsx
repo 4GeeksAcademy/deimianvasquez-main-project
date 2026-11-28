@@ -65,10 +65,13 @@ export default function Home() {
             </p>
           </Link>
 
-          <div className="group bg-surface rounded-xl border border-border p-6 cursor-not-allowed">
-            <div className="w-12 h-12 bg-surface-muted rounded-xl flex items-center justify-center mb-4">
+          <Link
+            href="/suppliers"
+            className="group bg-surface rounded-xl border border-border p-6 hover:border-primary-100 hover:shadow-md transition-all"
+          >
+            <div className="w-12 h-12 bg-primary-100 rounded-xl flex items-center justify-center mb-4 group-hover:bg-primary-100 transition-colors">
               <svg
-                className="w-6 h-6 text-text-secondary"
+                className="w-6 h-6 text-primary-700"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -81,11 +84,11 @@ export default function Home() {
                 />
               </svg>
             </div>
-            <h2 className="text-lg font-semibold text-text-secondary mb-1">
+            <h2 className="text-lg font-semibold text-text-primary mb-1">
               {t("suppliers_title")}
             </h2>
             <p className="text-sm text-text-secondary">{t("suppliers_desc")}</p>
-          </div>
+          </Link>
         </div>
       </div>
     </div>

@@ -1,12 +1,24 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import dynamic from "next/dynamic";
+import { useEffect, useState, useMemo } from "react";
 import { useTranslations } from "next-intl";
 import SupplierTable from "./SupplierTable";
-import SupplierForm from "./SupplierForm";
 import type { Supplier } from "./types";
 import { fetchWithAuth, API_BASE } from "@/services/api";
 import { requireAuth } from "@/services/auth-guard";
+
+// Lazy-loaded — solo se importa cuando el usuario hace clic en "New Supplier"
+const SupplierForm = dynamic(
+  () => import("./SupplierForm"),
+  {
+    loading: () => (
+      <div className="flex items-center justify-center py-8 animate-pulse">
+        <div className="h-32 bg-gray-200 dark:bg-gray-700 rounded w-full" />
+      </div>
+    ),
+  }
+);
 
 export default function SuppliersPage() {
   requireAuth();
@@ -36,8 +48,8 @@ export default function SuppliersPage() {
   const [skip, setSkip] = useState(0);
   const limit = 20; // Nº de proveedores por página
 
-  const totalPages = Math.max(1, Math.ceil(total / limit));
-  const currentPage = Math.floor(skip / limit) + 1;
+  const totalPages = useMemo(() => Math.max(1, Math.ceil(total / limit)), [total, limit]);
+  const currentPage = useMemo(() => Math.floor(skip / limit) + 1, [skip, limit]);
 
   const fetchSuppliers = async () => {
     setLoading(true);
